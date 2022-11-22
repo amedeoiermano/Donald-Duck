@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Donald Duck</string>
+    <string name="title_home">Home</string>
+    <string name="title_archive">Archive</string>
+
+    <string name="animated_gif_key">donaldancing%1$s</string>
+
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="prompt_issue_number">Insert issue number</string>
+    <string name="prompt_cover_image">Edit cover image url</string>
+    <string name="issue_number">n. %1$s</string>
+    <string name="downloading_comic">Downloading comic…</string>
+    <string name="issue_not_found">Issue not found!</string>
+    <string name="error_downloading_comic">Error downloading comic</string>
+    <string name="no_comics_title">No comics</string>
+    <string name="no_comics_description">You haven\'t added any comics yet.</string>
+    <string name="unstarted_comics">Not read (%1$s)</string>
+    <string name="completed_comics">Completed (%1$s)</string>
+    <string name="all_comics">All (%1$s)</string>
+    <string name="delete_comic">Delete</string>
+    <string name="delete_comic_confirm">Do you really want to delete this comic?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="comic_deleted">Comic deleted.</string>
+    <string name="comic_issue_number_not_provided">Please provide an issue number.</string>
+    <string name="comic_cover_url_not_provided">Please provide a valid url.</string>
+    <!-- Content descriptions-->
+    <string name="cdesc_navbarlogo">Navigation bar logo</string>
+    <string name="cdesc_addComicBtn">Button to add new comic</string>
+    <string name="cdesc_animatedImg">Animated gif for music easter egg</string>
+    <string name="cdesc_coverImg">Comic cover image</string>
+
+</resources>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Paperino</string>
+    <string name="title_home">Home</string>
+    <string name="title_archive">Archivio</string>
+
+    <string name="animated_gif_key">donaldancing%1$s</string>
+
+    <string name="confirm">Conferma</string>
+    <string name="cancel">Annulla</string>
+    <string name="prompt_issue_number">Inserisci numero fumetto</string>
+    <string name="prompt_cover_image">Modifica url immagine di copertina</string>
+    <string name="issue_number">n. %1$s</string>
+    <string name="downloading_comic">Download fumetto in corso…</string>
+    <string name="issue_not_found">Fumetto non trovato!</string>
+    <string name="error_downloading_comic">Errore durante il download del fumetto</string>
+    <string name="no_comics_title">Nessun fumetto</string>
+    <string name="no_comics_description">Non hai ancora aggiunto alcun fumetto.</string>
+    <string name="unstarted_comics">Non letti (%1$s)</string>
+    <string name="completed_comics">Finiti (%1$s)</string>
+    <string name="all_comics">Tutti (%1$s)</string>
+    <string name="delete_comic">Elimina</string>
+    <string name="delete_comic_confirm">Vuoi davvero eliminare questo fumetto?</string>
+    <string name="yes">Sì</string>
+    <string name="no">No</string>
+    <string name="comic_deleted">Fumetto eliminato.</string>
+    <string name="comic_issue_number_not_provided">Fornire un numero valido.</string>
+    <string name="comic_cover_url_not_provided">Fornire un url valido.</string>
+
+    <!-- Content descriptions-->
+    <string name="cdesc_navbarlogo">Logo barra di navigazione</string>
+    <string name="cdesc_addComicBtn">Bottone per aggiungere nuovo fumetto</string>
+    <string name="cdesc_animatedImg">Gif animata per l\'easter egg musicale</string>
+    <string name="cdesc_coverImg">Immagine di copertina del fumetto</string>
+</resources>

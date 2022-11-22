@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp"
+    android:background="?actionBarItemBackground"
+    android:gravity="center_vertical">
+<androidx.appcompat.widget.AppCompatCheckBox
+    android:id="@+id/storyReadCheckBox"
+    android:buttonTint="@color/yellow"
+    android:button="@null"
+    android:backgroundTint="@color/yellow"
+    android:background="@drawable/story_checkbox"
+    android:layout_marginEnd="5dp"
+    android:layout_width="30dp"
+    android:layout_height="30dp"/>
+    <TextView
+        android:id="@+id/storyTitleTxt"
+        android:textColor="@android:color/white"
+        tools:text="Lorem ipsum story"
+        android:layout_width="wrap_content"
+        android:shadowColor="@color/text_shadow"
+        android:shadowDx="1"
+        android:shadowDy="3"
+        android:shadowRadius="3"
+        android:textSize="18sp"
+        android:fontFamily="@font/futurino"
+        android:textAllCaps="true"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
