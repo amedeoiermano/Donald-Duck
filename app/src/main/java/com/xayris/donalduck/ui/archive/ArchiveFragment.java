@@ -33,16 +33,18 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
         return _binding.getRoot();
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ViewPager2 viewPager = view.findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(3);
+        viewPager.setSaveEnabled(false);
         ArchivePagerAdapter _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
 
-        _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
-        _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
+        if(ComicsRepository.getInstance().getUnstartedComics().size() > 0)
+            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
+        if(ComicsRepository.getInstance().getCompletedComics().size() > 0)
+            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
         _adapter.addFragment(new ArchiveTabFragment(ArchiveType.All));
 
         viewPager.setAdapter(_adapter);
