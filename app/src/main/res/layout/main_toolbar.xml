@@ -6,28 +6,27 @@
     android:layout_height="wrap_content">
     <androidx.appcompat.widget.Toolbar
     android:id="@+id/toolbar"
+        app:popupTheme="@style/Popup"
+        android:theme="@style/Toolbar"
         android:background="@color/red"
+        android:foregroundTint="@color/yellow"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:contentInsetStart="0dp"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize">
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+
             <ImageView
                 android:id="@+id/logo"
                 android:src="@drawable/logo_nav"
                 android:contentDescription="@string/cdesc_navbarlogo"
-                android:layout_gravity="center"
                 android:scaleType="centerInside"
                 android:padding="5dp"
+                android:layout_gravity="center"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.appcompat.widget.Toolbar>
 </androidx.constraintlayout.widget.ConstraintLayout>

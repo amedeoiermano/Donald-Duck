@@ -26,6 +26,7 @@
     <string name="comic_deleted">Fumetto eliminato.</string>
     <string name="comic_issue_number_not_provided">Fornire un numero valido.</string>
     <string name="comic_cover_url_not_provided">Fornire un url valido.</string>
+    <string name="backup_data">Backup dati</string>
 
     <!-- Content descriptions-->
     <string name="cdesc_navbarlogo">Logo barra di navigazione</string>

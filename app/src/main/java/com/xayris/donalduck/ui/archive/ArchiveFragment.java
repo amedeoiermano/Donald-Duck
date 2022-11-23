@@ -1,5 +1,6 @@
 package com.xayris.donalduck.ui.archive;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,6 +24,8 @@ import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentArchiveBinding;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 
+import java.util.Objects;
+
 public class ArchiveFragment extends Fragment implements  View.OnClickListener, ComicsArchiveAdapter.OnItemClickListener {
 
     private FragmentArchiveBinding _binding;
@@ -40,17 +43,19 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
         ViewPager2 viewPager = view.findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(3);
         ArchivePagerAdapter _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
-        _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
-        _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
         _adapter.addFragment(new ArchiveTabFragment(ArchiveType.All));
+        if(ComicsRepository.getInstance().getUnstartedComics().size() > 0)
+            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
+        if(ComicsRepository.getInstance().getCompletedComics().size() > 0)
+            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
 
         viewPager.setAdapter(_adapter);
         TabLayout _tabLayout = view.findViewById(R.id.tablayout);
 
         new TabLayoutMediator(_tabLayout, viewPager, (tab, position) -> {
             Context context = requireContext();
-            ArchiveType archiveType = ((ArchivePagerAdapter) viewPager.getAdapter()).getFragmentType(position);
-            int resIdentifier = context.getResources().getIdentifier(archiveType.toString().toLowerCase() + "_comics", "string", context.getPackageName());
+            ArchiveType archiveType = ((ArchivePagerAdapter) Objects.requireNonNull(viewPager.getAdapter())).getFragmentType(position);
+            @SuppressLint("DiscouragedApi") int resIdentifier = context.getResources().getIdentifier(archiveType.toString().toLowerCase() + "_comics", "string", context.getPackageName());
             tab.setText(getString(resIdentifier, ComicsRepository.getInstance().getComicsByArchiveType(archiveType).size()));
         }).attach();
         _binding.addComicBtn.setOnClickListener(ArchiveFragment.this);

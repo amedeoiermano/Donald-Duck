@@ -9,6 +9,8 @@
     </style>
     <style name="Theme.DonaldDuck.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="android:background">@color/red</item>
+        <item name="android:fontFamily">@font/futurino</item>
+        <item name="android:textAllCaps">true</item>
         <item name="titleTextColor">@android:color/white</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
@@ -33,5 +35,21 @@
         <item name="android:fontFamily">@font/futurino</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="Toolbar" parent="Theme.AppCompat.DayNight">
+        <item name="colorControlNormal">@android:color/white</item>
+    </style>
+
+    <style name="Popup" parent="ThemeOverlay.AppCompat.DayNight" >
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/red_bg</item>
+        <item name="android:fontFamily">@font/futurino</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="NavBar">
+        <item name="fontFamily">@font/futurino</item>
+        <item name="textAllCaps">true</item>
     </style>
 </resources>

@@ -25,6 +25,7 @@
     <string name="comic_deleted">Comic deleted.</string>
     <string name="comic_issue_number_not_provided">Please provide an issue number.</string>
     <string name="comic_cover_url_not_provided">Please provide a valid url.</string>
+    <string name="backup_data">Backup data</string>
     <!-- Content descriptions-->
     <string name="cdesc_navbarlogo">Navigation bar logo</string>
     <string name="cdesc_addComicBtn">Button to add new comic</string>

@@ -13,6 +13,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
     ActivityMainBinding _binding;
     NavHostFragment _navHostFragment;
     NavController _navController;
+    Toolbar _toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +53,8 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         findViewById(R.id.logo).setFocusable(true);
         findViewById(R.id.logo).setOnClickListener(this);
 
-        setSupportActionBar(findViewById(R.id.toolbar));
+        _toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(_toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -193,6 +196,12 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.navigation_archive)
+        {
+            _toolbar.inflateMenu(R.menu.archive_menu);
+        }
+        else
+            _toolbar.getMenu().clear();
         _binding.toolbarShadow.setVisibility(item.getItemId() == R.id.navigation_archive ? View.GONE : View.VISIBLE);
         _navController.navigate(item.getItemId());
         return true;
