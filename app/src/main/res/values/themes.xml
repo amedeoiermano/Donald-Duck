@@ -41,6 +41,7 @@
         <item name="colorControlNormal">@android:color/white</item>
     </style>
 
+
     <style name="Popup" parent="ThemeOverlay.AppCompat.DayNight" >
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@color/red_bg</item>

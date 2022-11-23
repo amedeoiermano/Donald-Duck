@@ -15,7 +15,7 @@
     <string name="error_downloading_comic">Error downloading comic</string>
     <string name="no_comics_title">No comics</string>
     <string name="no_comics_description">You haven\'t added any comics yet.</string>
-    <string name="unstarted_comics">Not read (%1$s)</string>
+    <string name="unstarted_comics">To read (%1$s)</string>
     <string name="completed_comics">Completed (%1$s)</string>
     <string name="all_comics">All (%1$s)</string>
     <string name="delete_comic">Delete</string>
@@ -26,6 +26,9 @@
     <string name="comic_issue_number_not_provided">Please provide an issue number.</string>
     <string name="comic_cover_url_not_provided">Please provide a valid url.</string>
     <string name="backup_data">Backup data</string>
+    <string name="restore_data">Restore data</string>
+    <string name="data_restored_succesfully">Data restored successfully! Please, restart the application.</string>
+    <string name="data_restored_failed">Data restore failed.</string>
     <!-- Content descriptions-->
     <string name="cdesc_navbarlogo">Navigation bar logo</string>
     <string name="cdesc_addComicBtn">Button to add new comic</string>

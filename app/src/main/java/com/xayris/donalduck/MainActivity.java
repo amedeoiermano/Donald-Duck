@@ -4,14 +4,27 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileUtils;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -31,10 +44,23 @@ import com.xayris.donalduck.databinding.ActivityMainBinding;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 import com.xayris.donalduck.utils.Utility;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.realm.Realm;
+
 public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener,  View.OnClickListener, MediaPlayer.OnCompletionListener, FragmentManager.OnBackStackChangedListener {
+    private static final int PICKFILE_RESULT_CODE = 1978;
     MediaPlayer _bgMusicPlayer;
     int _bgMusicPlayerCurrentPos;
     ActivityMainBinding _binding;
@@ -192,7 +218,96 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         else
             super.onBackPressed();
     }
+    public static File commonDocumentDirPath()
+    {
+        File dir = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+        {
+            dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        }
+        else
+        {
+            dir = Environment.getExternalStorageDirectory();
+        }
 
+        return dir;
+    }
+    private void backupData() {
+        final Realm realm = Realm.getDefaultInstance();
+        try {
+            final File dst = new File(commonDocumentDirPath().getPath().concat("/donald_backup.realm"));
+            FileInputStream inStream = new FileInputStream(realm.getPath());
+
+            if (!dst.exists()) {
+                dst.createNewFile();
+            }
+
+            if (!dst.canWrite()) {
+                System.out.print("CAN'T WRITE");
+                return;
+            }
+
+            FileOutputStream outStream = new FileOutputStream(dst);
+            FileChannel inChannel = inStream.getChannel();
+            FileChannel outChannel = outStream.getChannel();
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+            inStream.close();
+            outStream.close();
+
+        } catch (Exception e) {
+            realm.close();
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.backupData) {
+            backupData();
+        }
+        if(item.getItemId() == R.id.restoreData) {
+            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+            chooseFile.setType("*/*");
+            chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+            startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICKFILE_RESULT_CODE) {
+            Realm realm = Realm.getDefaultInstance();
+            Uri content_describer = data.getData();
+            InputStream in = null;
+            OutputStream out = null;
+            int outputMessageRes = 0;
+            try {
+                realm.close();
+                in = getContentResolver().openInputStream(content_describer);
+                out = new FileOutputStream(realm.getPath());
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, len);
+                }
+                outputMessageRes = R.string.data_restored_succesfully;
+            } catch (Exception e) {
+                outputMessageRes = R.string.data_restored_failed;
+                try {
+                    Objects.requireNonNull(in).close();
+                    Objects.requireNonNull(out).close();
+                } catch (Exception ignored) {
+
+                }
+
+            } finally {
+                Utility.showToast(getApplicationContext(), outputMessageRes, Toast.LENGTH_SHORT);
+            }
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
