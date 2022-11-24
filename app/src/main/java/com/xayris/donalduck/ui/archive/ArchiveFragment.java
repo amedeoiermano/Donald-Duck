@@ -40,6 +40,7 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity)requireActivity()).showMenu();
         ViewPager2 viewPager = view.findViewById(R.id.viewpager);
         viewPager.setOffscreenPageLimit(3);
         ArchivePagerAdapter _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());

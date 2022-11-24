@@ -33,6 +33,7 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity)requireActivity()).hideMenu();
         _binding.comicsList.setOnScrollChangeListener(this);
         _binding.comicsList.setLayoutManager(new LinearLayoutManager(getContext()));
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(new ComicsHomeAdapter.SwipeCallback(requireContext()));

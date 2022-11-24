@@ -308,14 +308,16 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.navigation_archive)
-        {
-            _toolbar.inflateMenu(R.menu.archive_menu);
-        }
-        else
-            _toolbar.getMenu().clear();
         _binding.toolbarShadow.setVisibility(item.getItemId() == R.id.navigation_archive ? View.GONE : View.VISIBLE);
         _navController.navigate(item.getItemId());
         return true;
+    }
+
+    public void showMenu() {
+        _toolbar.inflateMenu(R.menu.archive_menu);
+    }
+
+    public void hideMenu() {
+        _toolbar.getMenu().clear();
     }
 }

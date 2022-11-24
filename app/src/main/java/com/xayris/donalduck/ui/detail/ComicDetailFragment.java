@@ -18,6 +18,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
+import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.StoriesAdapter;
 import com.xayris.donalduck.data.ComicsExplorer;
@@ -59,6 +60,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((MainActivity)requireActivity()).hideMenu();
         if (getArguments() != null) {
             String issue = getArguments().getString(ARG_ISSUE);
             if(issue == null)
