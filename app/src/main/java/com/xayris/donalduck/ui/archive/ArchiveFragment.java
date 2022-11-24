@@ -29,7 +29,8 @@ import java.util.Objects;
 public class ArchiveFragment extends Fragment implements  View.OnClickListener, ComicsArchiveAdapter.OnItemClickListener {
 
     private FragmentArchiveBinding _binding;
-
+    ViewPager2 _viewPager;
+    ArchivePagerAdapter _adapter;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         _binding = FragmentArchiveBinding.inflate(inflater, container, false);
@@ -41,21 +42,21 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((MainActivity)requireActivity()).showMenu();
-        ViewPager2 viewPager = view.findViewById(R.id.viewpager);
-        viewPager.setOffscreenPageLimit(3);
-        ArchivePagerAdapter _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
+         _viewPager = view.findViewById(R.id.viewpager);
+        _viewPager.setOffscreenPageLimit(3);
+        _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
         _adapter.addFragment(new ArchiveTabFragment(ArchiveType.All));
         if(ComicsRepository.getInstance().getUnstartedComics().size() > 0)
             _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
         if(ComicsRepository.getInstance().getCompletedComics().size() > 0)
             _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
 
-        viewPager.setAdapter(_adapter);
+        _viewPager.setAdapter(_adapter);
         TabLayout _tabLayout = view.findViewById(R.id.tablayout);
 
-        new TabLayoutMediator(_tabLayout, viewPager, (tab, position) -> {
+        new TabLayoutMediator(_tabLayout, _viewPager, (tab, position) -> {
             Context context = requireContext();
-            ArchiveType archiveType = ((ArchivePagerAdapter) Objects.requireNonNull(viewPager.getAdapter())).getFragmentType(position);
+            ArchiveType archiveType = ((ArchivePagerAdapter) Objects.requireNonNull(_viewPager.getAdapter())).getFragmentType(position);
             @SuppressLint("DiscouragedApi") int resIdentifier = context.getResources().getIdentifier(archiveType.toString().toLowerCase() + "_comics", "string", context.getPackageName());
             tab.setText(getString(resIdentifier, ComicsRepository.getInstance().getComicsByArchiveType(archiveType).size()));
         }).attach();
@@ -69,7 +70,7 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
     }
 
     private void addComic() {
-        requireActivity().getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(null), ComicDetailFragment.class.getName())
+        requireActivity().getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(null, null), ComicDetailFragment.class.getName())
                 .addToBackStack(null).commit();
     }
 
@@ -83,10 +84,11 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
 
     @Override
     public void onItemClick(Comic item) {
-        ((MainActivity)requireActivity()).openComic(item);
+        ((MainActivity)requireActivity()).openComic(item, _adapter.getFragmentType(_viewPager.getCurrentItem()));
     }
 
     public enum ArchiveType {
+        InProgress,
         Unstarted,
         Completed,
         All

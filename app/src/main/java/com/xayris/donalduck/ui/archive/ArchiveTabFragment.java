@@ -1,6 +1,7 @@
 package com.xayris.donalduck.ui.archive;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,11 @@ public class ArchiveTabFragment extends Fragment implements View.OnScrollChangeL
     }
 
 
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        onCreateView(getLayoutInflater(), null,null);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

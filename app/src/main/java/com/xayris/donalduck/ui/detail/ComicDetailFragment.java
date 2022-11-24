@@ -1,6 +1,7 @@
 package com.xayris.donalduck.ui.detail;
 
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -25,6 +26,7 @@ import com.xayris.donalduck.data.ComicsExplorer;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentComicDetailBinding;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.util.Objects;
@@ -33,18 +35,29 @@ import java.util.Objects;
 public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnComicDownloadedListener, View.OnClickListener {
 
     Comic _comic;
+    @Nullable
+    ArchiveFragment.ArchiveType _archiveType = null;
     public static final String ARG_ISSUE = "issue";
+    public static final String ARG_ARCHIVE_TYPE = "archive_type";
     FragmentComicDetailBinding _binding;
-
+    private String _previousIssue, _nextIssue;
     public ComicDetailFragment() {
     }
 
-    public static ComicDetailFragment newInstance(String issue) {
+    public static ComicDetailFragment newInstance(String issue, @Nullable  ArchiveFragment.ArchiveType archiveType) {
         ComicDetailFragment fragment = new ComicDetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ISSUE, issue);
+        if(archiveType != null)
+            args.putString(ARG_ARCHIVE_TYPE, archiveType.toString());
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        onCreateView(getLayoutInflater(), null,null);
     }
 
     @Override
@@ -54,6 +67,8 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         _binding.storiesList.setLayoutManager(new LinearLayoutManager(getContext()));
         _binding.deleteComicBtn.setOnClickListener(this);
         _binding.coverImg.setOnClickListener(this);
+        _binding.previousIssueBtn.setOnClickListener(this);
+        _binding.nextIssueBtn.setOnClickListener(this);
         return _binding.getRoot();
     }
 
@@ -63,10 +78,14 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         ((MainActivity)requireActivity()).hideMenu();
         if (getArguments() != null) {
             String issue = getArguments().getString(ARG_ISSUE);
+            String archiveType = getArguments().getString(ARG_ARCHIVE_TYPE);
+            if(archiveType != null)
+                _archiveType = ArchiveFragment.ArchiveType.valueOf(getArguments().getString(ARG_ARCHIVE_TYPE));
             if(issue == null)
                 promptNewComic();
-            else
+            else {
                 loadComic(issue);
+            }
         }
     }
 
@@ -79,8 +98,15 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     private void loadComic(String issue) {
         // gets existing comic
         _comic= ComicsRepository.getInstance().getComic(issue);
-        if(_comic != null)
+        if(_comic != null) {
+            _previousIssue = ComicsRepository.getInstance().getPreviousComicIssueByArchiveType(issue, _archiveType);
+            _nextIssue = ComicsRepository.getInstance().getNextComicIssueByArchiveType(issue, _archiveType);
+            _binding.previousIssueBtn.setVisibility(_previousIssue != null ? View.VISIBLE : View.GONE);
+            _binding.nextIssueBtn.setVisibility(_nextIssue != null ? View.VISIBLE : View.GONE);
+            _binding.previousIssueBtn.setText(getString(R.string.issue_number, _previousIssue));
+            _binding.nextIssueBtn.setText(getString(R.string.issue_number, _nextIssue));
             showComic();
+        }
     }
 
     private void promptNewComic() {
@@ -155,6 +181,10 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
             showDeleteComicDialog();
         if(v.getId() == R.id.coverImg)
             promptNewComicCover();
+        if(v.getId() == R.id.previousIssueBtn)
+            loadComic(_previousIssue);
+        if(v.getId() == R.id.nextIssueBtn)
+            loadComic(_nextIssue);
     }
 
     private void promptNewComicCover() {

@@ -16,7 +16,7 @@ import com.xayris.donalduck.adapters.ComicsHomeAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentHomeBinding;
-import com.xayris.donalduck.utils.Utility;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
 
 import java.util.Objects;
 
@@ -39,7 +39,7 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(new ComicsHomeAdapter.SwipeCallback(requireContext()));
         itemTouchhelper.attachToRecyclerView(_binding.comicsList);
         new Handler(Looper.myLooper()).post(() -> {
-            _binding.comicsList.setAdapter(new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getHome(), HomeFragment.this));
+            _binding.comicsList.setAdapter(new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getComicsInProgress(), HomeFragment.this));
             new Handler(Looper.getMainLooper()).post(() -> {
                 _binding.comicsList.animate().alpha(1).setDuration(200).start();
                 if(lastScrollY > 0)
@@ -56,13 +56,13 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
 
     @Override
     public void onItemClick(Comic item) {
-        ((MainActivity)requireActivity()).openComic(item);
+        ((MainActivity)requireActivity()).openComic(item, ArchiveFragment.ArchiveType.InProgress);
     }
 
     @Override
     public void onSetNextStoryRead(Comic item, int listPosition) {
         ComicsRepository.getInstance().setStoryRead(item.getNextUnreadStory());
-        ((ComicsHomeAdapter) Objects.requireNonNull(_binding.comicsList.getAdapter())).updateData(ComicsRepository.getInstance().getHome());
+        ((ComicsHomeAdapter) Objects.requireNonNull(_binding.comicsList.getAdapter())).updateData(ComicsRepository.getInstance().getComicsInProgress());
     }
 
     int lastScrollY;

@@ -9,10 +9,10 @@ import com.xayris.donalduck.data.entities.Story;
 import com.xayris.donalduck.ui.archive.ArchiveFragment;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -35,7 +35,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     }
 
     private RealmResults<Comic> _comics;
-    private List<Comic> _homeComics;
+    private List<Comic> _comicsInProgress;
     private ComicsArchiveResult _archiveComics;
 
 
@@ -76,9 +76,9 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
 
     public void processHomeComics() {
         Realm realm = Realm.getDefaultInstance();
-        _homeComics = realm.copyFromRealm(_comics);
-        _homeComics = _homeComics.stream().filter(comic -> comic.getReadStoriesCount() > 0 && comic.getReadStoriesCount() < comic.getStoriesCount()).collect(Collectors.toList());
-        _homeComics.sort((o1, o2) -> {
+        _comicsInProgress = realm.copyFromRealm(_comics);
+        _comicsInProgress = _comicsInProgress.stream().filter(comic -> comic.getReadStoriesCount() > 0 && comic.getReadStoriesCount() < comic.getStoriesCount()).collect(Collectors.toList());
+        _comicsInProgress.sort((o1, o2) -> {
             int o1Remaining = o1.getStoriesCount() - o1.getReadStoriesCount();
             int o2Remaining = o2.getStoriesCount() - o2.getReadStoriesCount();
             double o1Value = (float) o1Remaining / o1.getStoriesCount();
@@ -88,12 +88,12 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     }
 
     public void loadComics() {
-        if(_homeComics != null && _archiveComics != null)
+        if(_comicsInProgress != null && _archiveComics != null)
             return;
         Realm realm = Realm.getDefaultInstance();
         _comics = realm.where(Comic.class).sort("issue", Sort.DESCENDING).findAll();
         _comics.addChangeListener(this);
-        if(_homeComics == null)
+        if(_comicsInProgress == null)
             processHomeComics();
         if(_archiveComics == null)
             processComicsArchive();
@@ -103,24 +103,55 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         return _archiveComics;
     }
 
-    public List<Comic> getHome() {
-        return _homeComics;
+    public List<Comic> getComicsInProgress() {
+        return _comicsInProgress;
     }
 
     private void processComicsArchive() {
-        List<Comic> startedComics = new ArrayList<>();
         List<Comic> unstartedComics = new ArrayList<>();
         List<Comic> completedComics = new ArrayList<>();
 
         for (Comic c : _comics) {
-            if(c.getReadStoriesCount() > 0 && c.getReadStoriesCount() < c.getStoriesCount())
-                startedComics.add(c);
-            else if (c.getReadStoriesCount() == 0)
+             if (c.getReadStoriesCount() == 0)
                 unstartedComics.add(c);
             else if (c.getReadStoriesCount() == c.getStoriesCount())
                 completedComics.add(c);
         }
-        _archiveComics = new ComicsArchiveResult(startedComics, unstartedComics, completedComics);
+        _archiveComics = new ComicsArchiveResult(unstartedComics, completedComics);
+    }
+
+    public String getNextComicIssueByArchiveType(String currentIssue, ArchiveFragment.ArchiveType type) {
+        List<Comic> list = getComicsByArchiveType(type);
+        // gets index of current issue
+        Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
+            @Override
+            public boolean test(Comic comic) {
+                return Objects.equals(comic.getIssue(), currentIssue);
+            }
+        }).findFirst();
+        if(!current.isPresent())
+            return null;
+        int currentIndex = list.indexOf(current.get());
+        if(currentIndex == 0)
+            return null;
+        return list.get(currentIndex - 1).getIssue();
+    }
+
+    public String getPreviousComicIssueByArchiveType(String currentIssue, ArchiveFragment.ArchiveType type) {
+        List<Comic> list = getComicsByArchiveType(type);
+        // gets index of current issue
+        Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
+            @Override
+            public boolean test(Comic comic) {
+                return Objects.equals(comic.getIssue(), currentIssue);
+            }
+        }).findFirst();
+        if(!current.isPresent())
+            return null;
+        int currentIndex = list.indexOf(current.get());
+        if(currentIndex >= list.size() -1)
+            return null;
+        return list.get(currentIndex +1).getIssue();
     }
 
     @Override
@@ -131,6 +162,8 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
 
     public List<Comic> getComicsByArchiveType(ArchiveFragment.ArchiveType type) {
         switch (type) {
+            case InProgress:
+                return getComicsInProgress();
             case Unstarted:
                 return  getUnstartedComics();
             case Completed:
@@ -139,11 +172,6 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
                 return getAllComics();
         }
         return null;
-    }
-
-
-    public List<Comic> getStartedComics() {
-        return getArchive().getStartedComics();
     }
 
     public List<Comic> getUnstartedComics() {
@@ -156,7 +184,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
 
     public List<Comic> getAllComics() {
         List<Comic> comics = new ArrayList<>();
-        comics.addAll(getStartedComics());
+        comics.addAll(getComicsInProgress());
         comics.addAll(getUnstartedComics());
         comics.addAll(getCompletedComics());
 
@@ -188,19 +216,13 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     }
 
     public static class ComicsArchiveResult {
-        private final List<Comic> _startedComics;
         private final List<Comic> _unstartedComics;
         private final List<Comic> _completedComics;
 
-        public ComicsArchiveResult(List<Comic> startedComics, List<Comic> unstartedComics, List<Comic> completedComics)
+        public ComicsArchiveResult(List<Comic> unstartedComics, List<Comic> completedComics)
         {
-            _startedComics = startedComics;
             _unstartedComics = unstartedComics;
             _completedComics = completedComics;
-        }
-
-        public List<Comic> getStartedComics() {
-            return _startedComics;
         }
 
         public List<Comic> getUnstartedComics() {

@@ -41,6 +41,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.ActivityMainBinding;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 import com.xayris.donalduck.utils.Utility;
 
@@ -190,9 +191,9 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         }
     }
 
-    public void openComic(Comic comic) {
+    public void openComic(Comic comic, ArchiveFragment.ArchiveType archiveType) {
         _binding.navView.getLayoutParams().height = 0;
-        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(comic.getIssue()), ComicDetailFragment.class.getName())
+        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(comic.getIssue(), archiveType), ComicDetailFragment.class.getName())
                 .addToBackStack(null).commit();
     }
 
