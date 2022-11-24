@@ -58,6 +58,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.realm.Realm;
+import io.realm.internal.Util;
 
 public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener,  View.OnClickListener, MediaPlayer.OnCompletionListener, FragmentManager.OnBackStackChangedListener {
     private static final int PICKFILE_RESULT_CODE = 1978;
@@ -242,17 +243,13 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
                 dst.createNewFile();
             }
 
-            if (!dst.canWrite()) {
-                System.out.print("CAN'T WRITE");
-                return;
-            }
-
             FileOutputStream outStream = new FileOutputStream(dst);
             FileChannel inChannel = inStream.getChannel();
             FileChannel outChannel = outStream.getChannel();
             inChannel.transferTo(0, inChannel.size(), outChannel);
             inStream.close();
             outStream.close();
+            Utility.showToast(this, R.string.data_backup_success, Toast.LENGTH_SHORT);
 
         } catch (Exception e) {
             realm.close();

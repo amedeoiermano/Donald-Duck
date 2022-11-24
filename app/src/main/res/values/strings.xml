@@ -27,6 +27,7 @@
     <string name="comic_cover_url_not_provided">Please provide a valid url.</string>
     <string name="backup_data">Backup data</string>
     <string name="restore_data">Restore data</string>
+    <string name="data_backup_success">Data backup completed.</string>
     <string name="data_restored_succesfully">Data restored successfully! Please, restart the application.</string>
     <string name="data_restored_failed">Data restore failed.</string>
     <!-- Content descriptions-->

@@ -28,6 +28,7 @@
     <string name="comic_cover_url_not_provided">Fornire un url valido.</string>
     <string name="backup_data">Backup dati</string>
     <string name="restore_data">Ripristina dati</string>
+    <string name="data_backup_success">Backup dati completato.</string>
     <string name="data_restored_succesfully">Dati ripristinati con successo! Riavviare l\'app</string>
     <string name="data_restored_failed">Ripristino dati fallito.</string>
 
