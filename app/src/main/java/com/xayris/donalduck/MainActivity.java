@@ -55,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     MediaPlayer _bgMusicPlayer;
     int _bgMusicPlayerCurrentPos;
     ActivityMainBinding _binding;
-    NavHostFragment _navHostFragment;
-    NavController _navController;
     Toolbar _toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +72,10 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         setSupportActionBar(_toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        _navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
-        if(_navHostFragment != null) {
-            _navController = _navHostFragment.getNavController();
-        }
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
+
+        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, new ComicsFragment(), ComicsFragment.class.getName()).commit();
 
     }
 
@@ -174,11 +170,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     }
 
     public void openComic(Comic comic, ComicsFragment.ArchiveType archiveType) {
-        Bundle bundle = new Bundle();
-        bundle.putString(ComicDetailFragment.ARG_ISSUE, comic.getIssue());
-        bundle.putString(ComicDetailFragment.ARG_ARCHIVE_TYPE, archiveType.toString());
-
-        _navController.navigate(R.id.navigation_detail, bundle);
+        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(comic.getIssue(), archiveType), ComicDetailFragment.class.getName()).commit();
     }
 
     @Override
@@ -283,6 +275,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     }
 
     public void addComic() {
-        _navController.navigate(R.id.navigation_detail);
+        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(null, null), ComicDetailFragment.class.getName()).commit();
     }
 }

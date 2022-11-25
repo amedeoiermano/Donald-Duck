@@ -44,6 +44,7 @@ public class ComicsFragment extends Fragment implements  View.OnClickListener, C
         super.onViewCreated(view, savedInstanceState);
          _viewPager = view.findViewById(R.id.viewpager);
         _viewPager.setOffscreenPageLimit(4);
+        _viewPager.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
         _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
         _adapter.addFragment(new InProgressComicsFragment());
             _adapter.addFragment(new ComicsTabFragment(ArchiveType.Unstarted));
