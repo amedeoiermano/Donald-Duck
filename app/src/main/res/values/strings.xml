@@ -15,6 +15,7 @@
     <string name="error_downloading_comic">Error downloading comic</string>
     <string name="no_comics_title">No comics</string>
     <string name="no_comics_description">You haven\'t added any comics yet.</string>
+    <string name="inprogress_comics">In progress (%1$s)</string>
     <string name="unstarted_comics">To read (%1$s)</string>
     <string name="completed_comics">Completed (%1$s)</string>
     <string name="all_comics">All (%1$s)</string>

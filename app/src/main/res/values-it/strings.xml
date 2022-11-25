@@ -16,6 +16,7 @@
     <string name="error_downloading_comic">Errore durante il download del fumetto</string>
     <string name="no_comics_title">Nessun fumetto</string>
     <string name="no_comics_description">Non hai ancora aggiunto alcun fumetto.</string>
+    <string name="inprogress_comics">In corso (%1$s)</string>
     <string name="unstarted_comics">Non letti (%1$s)</string>
     <string name="completed_comics">Finiti (%1$s)</string>
     <string name="all_comics">Tutti (%1$s)</string>

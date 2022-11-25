@@ -4,22 +4,16 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.FileUtils;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
@@ -30,6 +24,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -37,31 +32,25 @@ import androidx.navigation.ui.NavigationUI;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.material.navigation.NavigationView;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.ActivityMainBinding;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.ui.archive.ComicsFragment;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 import com.xayris.donalduck.utils.Utility;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.realm.Realm;
-import io.realm.internal.Util;
 
-public class MainActivity extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener,  View.OnClickListener, MediaPlayer.OnCompletionListener, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements  View.OnClickListener, MediaPlayer.OnCompletionListener {
     private static final int PICKFILE_RESULT_CODE = 1978;
     MediaPlayer _bgMusicPlayer;
     int _bgMusicPlayerCurrentPos;
@@ -85,20 +74,13 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         setSupportActionBar(_toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_archive)
-                .build();
         _navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         if(_navHostFragment != null) {
             _navController = _navHostFragment.getNavController();
-            NavigationUI.setupActionBarWithNavController(this, _navController, appBarConfiguration);
-            NavigationUI.setupWithNavController(_binding.navView, _navController);
         }
-        _binding.navView.setOnItemSelectedListener(this);
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
 
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
     private void startBgMusic() {
@@ -191,10 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         }
     }
 
-    public void openComic(Comic comic, ArchiveFragment.ArchiveType archiveType) {
-        _binding.navView.getLayoutParams().height = 0;
-        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(comic.getIssue(), archiveType), ComicDetailFragment.class.getName())
-                .addToBackStack(null).commit();
+    public void openComic(Comic comic, ComicsFragment.ArchiveType archiveType) {
+        Bundle bundle = new Bundle();
+        bundle.putString(ComicDetailFragment.ARG_ISSUE, comic.getIssue());
+        bundle.putString(ComicDetailFragment.ARG_ARCHIVE_TYPE, archiveType.toString());
+
+        _navController.navigate(R.id.navigation_detail, bundle);
     }
 
     @Override
@@ -202,24 +186,6 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         hideAnimation();
     }
 
-
-    @Override
-    public void onBackStackChanged() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-            _binding.navView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        }
-        else
-            _binding.navView.getLayoutParams().height = 0;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!(getSupportFragmentManager().getFragments().get(0) instanceof NavHostFragment)) {
-            getSupportFragmentManager().popBackStack();
-        }
-        else
-            super.onBackPressed();
-    }
     public static File commonDocumentDirPath()
     {
         File dir = null;
@@ -307,12 +273,6 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        _binding.toolbarShadow.setVisibility(item.getItemId() == R.id.navigation_archive ? View.GONE : View.VISIBLE);
-        _navController.navigate(item.getItemId());
-        return true;
-    }
 
     public void showMenu() {
         _toolbar.inflateMenu(R.menu.archive_menu);
@@ -320,5 +280,9 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
     public void hideMenu() {
         _toolbar.getMenu().clear();
+    }
+
+    public void addComic() {
+        _navController.navigate(R.id.navigation_detail);
     }
 }

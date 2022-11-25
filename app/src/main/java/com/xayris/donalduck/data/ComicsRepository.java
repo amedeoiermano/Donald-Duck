@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.data.entities.Story;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.ui.archive.ComicsFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +120,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         _archiveComics = new ComicsArchiveResult(unstartedComics, completedComics);
     }
 
-    public String getNextComicIssueByArchiveType(String currentIssue, ArchiveFragment.ArchiveType type) {
+    public String getNextComicIssueByArchiveType(String currentIssue, ComicsFragment.ArchiveType type) {
         List<Comic> list = getComicsByArchiveType(type);
         // gets index of current issue
         Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
@@ -137,7 +137,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         return list.get(currentIndex - 1).getIssue();
     }
 
-    public String getPreviousComicIssueByArchiveType(String currentIssue, ArchiveFragment.ArchiveType type) {
+    public String getPreviousComicIssueByArchiveType(String currentIssue, ComicsFragment.ArchiveType type) {
         List<Comic> list = getComicsByArchiveType(type);
         // gets index of current issue
         Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
@@ -160,7 +160,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         processHomeComics();
     }
 
-    public List<Comic> getComicsByArchiveType(ArchiveFragment.ArchiveType type) {
+    public List<Comic> getComicsByArchiveType(ComicsFragment.ArchiveType type) {
         switch (type) {
             case InProgress:
                 return getComicsInProgress();

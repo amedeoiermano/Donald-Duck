@@ -26,7 +26,7 @@ import com.xayris.donalduck.data.ComicsExplorer;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentComicDetailBinding;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.ui.archive.ComicsFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.util.Objects;
@@ -36,7 +36,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
 
     Comic _comic;
     @Nullable
-    ArchiveFragment.ArchiveType _archiveType = null;
+    ComicsFragment.ArchiveType _archiveType = null;
     public static final String ARG_ISSUE = "issue";
     public static final String ARG_ARCHIVE_TYPE = "archive_type";
     FragmentComicDetailBinding _binding;
@@ -44,7 +44,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     public ComicDetailFragment() {
     }
 
-    public static ComicDetailFragment newInstance(String issue, @Nullable  ArchiveFragment.ArchiveType archiveType) {
+    public static ComicDetailFragment newInstance(String issue, @Nullable  ComicsFragment.ArchiveType archiveType) {
         ComicDetailFragment fragment = new ComicDetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ISSUE, issue);
@@ -80,13 +80,25 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
             String issue = getArguments().getString(ARG_ISSUE);
             String archiveType = getArguments().getString(ARG_ARCHIVE_TYPE);
             if(archiveType != null)
-                _archiveType = ArchiveFragment.ArchiveType.valueOf(getArguments().getString(ARG_ARCHIVE_TYPE));
+                _archiveType = ComicsFragment.ArchiveType.valueOf(getArguments().getString(ARG_ARCHIVE_TYPE));
             if(issue == null)
                 promptNewComic();
             else {
                 loadComic(issue);
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity)requireActivity()).hideMenu();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ((MainActivity)requireActivity()).hideMenu();
     }
 
     @Override

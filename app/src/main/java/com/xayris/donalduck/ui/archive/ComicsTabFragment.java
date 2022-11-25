@@ -1,16 +1,11 @@
 package com.xayris.donalduck.ui.archive;
 
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -21,22 +16,23 @@ import android.view.ViewGroup;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.ComicsArchiveAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
-import com.xayris.donalduck.databinding.FragmentArchiveBinding;
 import com.xayris.donalduck.databinding.FragmentArchiveTabBinding;
+import com.xayris.donalduck.ui.BaseComicsFragment;
 import com.xayris.donalduck.utils.ItemOffsetDecoration;
 
 
-public class ArchiveTabFragment extends Fragment implements View.OnScrollChangeListener {
+public class ComicsTabFragment extends BaseComicsFragment implements View.OnScrollChangeListener {
 
     private FragmentArchiveTabBinding _binding;
 
-    private ArchiveFragment.ArchiveType _archiveType;
+
     private ComicsArchiveAdapter _adapter;
-    public ArchiveTabFragment() {
+
+    public ComicsTabFragment() {
     }
 
-    public ArchiveTabFragment(ArchiveFragment.ArchiveType type) {
-        _archiveType = type;
+    public ComicsTabFragment(ComicsFragment.ArchiveType type) {
+        super(type);
     }
 
 
@@ -106,9 +102,5 @@ public class ArchiveTabFragment extends Fragment implements View.OnScrollChangeL
     public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         lastScrollY = scrollY;
 
-    }
-
-    public ArchiveFragment.ArchiveType getArchiveType() {
-        return _archiveType;
     }
 }

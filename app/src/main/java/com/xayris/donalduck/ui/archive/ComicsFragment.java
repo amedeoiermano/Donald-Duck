@@ -21,19 +21,20 @@ import com.xayris.donalduck.adapters.ArchivePagerAdapter;
 import com.xayris.donalduck.adapters.ComicsArchiveAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
-import com.xayris.donalduck.databinding.FragmentArchiveBinding;
+import com.xayris.donalduck.databinding.FragmentComicsBinding;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
+import com.xayris.donalduck.ui.home.InProgressComicsFragment;
 
 import java.util.Objects;
 
-public class ArchiveFragment extends Fragment implements  View.OnClickListener, ComicsArchiveAdapter.OnItemClickListener {
+public class ComicsFragment extends Fragment implements  View.OnClickListener, ComicsArchiveAdapter.OnItemClickListener {
 
-    private FragmentArchiveBinding _binding;
+    private FragmentComicsBinding _binding;
     ViewPager2 _viewPager;
     ArchivePagerAdapter _adapter;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        _binding = FragmentArchiveBinding.inflate(inflater, container, false);
+        _binding = FragmentComicsBinding.inflate(inflater, container, false);
         return _binding.getRoot();
     }
 
@@ -41,26 +42,25 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((MainActivity)requireActivity()).showMenu();
          _viewPager = view.findViewById(R.id.viewpager);
-        _viewPager.setOffscreenPageLimit(3);
+        _viewPager.setOffscreenPageLimit(4);
         _adapter = new ArchivePagerAdapter(getChildFragmentManager(), getLifecycle());
-        _adapter.addFragment(new ArchiveTabFragment(ArchiveType.All));
-        if(ComicsRepository.getInstance().getUnstartedComics().size() > 0)
-            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Unstarted));
-        if(ComicsRepository.getInstance().getCompletedComics().size() > 0)
-            _adapter.addFragment(new ArchiveTabFragment(ArchiveType.Completed));
+        _adapter.addFragment(new InProgressComicsFragment());
+            _adapter.addFragment(new ComicsTabFragment(ArchiveType.Unstarted));
+            _adapter.addFragment(new ComicsTabFragment(ArchiveType.Completed));
+        _adapter.addFragment(new ComicsTabFragment(ArchiveType.All));
 
         _viewPager.setAdapter(_adapter);
         TabLayout _tabLayout = view.findViewById(R.id.tablayout);
-
+        _tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
+        _tabLayout.setTabMode(TabLayout.MODE_AUTO);
         new TabLayoutMediator(_tabLayout, _viewPager, (tab, position) -> {
             Context context = requireContext();
             ArchiveType archiveType = ((ArchivePagerAdapter) Objects.requireNonNull(_viewPager.getAdapter())).getFragmentType(position);
             @SuppressLint("DiscouragedApi") int resIdentifier = context.getResources().getIdentifier(archiveType.toString().toLowerCase() + "_comics", "string", context.getPackageName());
             tab.setText(getString(resIdentifier, ComicsRepository.getInstance().getComicsByArchiveType(archiveType).size()));
         }).attach();
-        _binding.addComicBtn.setOnClickListener(ArchiveFragment.this);
+        _binding.addComicBtn.setOnClickListener(ComicsFragment.this);
     }
 
     @Override
@@ -69,9 +69,20 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
         _binding = null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity)requireActivity()).showMenu();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ((MainActivity)requireActivity()).showMenu();
+    }
+
     private void addComic() {
-        requireActivity().getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(null, null), ComicDetailFragment.class.getName())
-                .addToBackStack(null).commit();
+        ((MainActivity)requireActivity()).addComic();
     }
 
     @Override

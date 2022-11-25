@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.xayris.donalduck.MainActivity;
@@ -16,13 +15,19 @@ import com.xayris.donalduck.adapters.ComicsHomeAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentHomeBinding;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.ui.BaseComicsFragment;
+import com.xayris.donalduck.ui.archive.ComicsFragment;
 
 import java.util.Objects;
 
-public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicActionListener, View.OnScrollChangeListener {
+public class InProgressComicsFragment extends BaseComicsFragment implements ComicsHomeAdapter.ComicActionListener, View.OnScrollChangeListener {
 
     private FragmentHomeBinding _binding;
+
+    public InProgressComicsFragment() {
+        super(ComicsFragment.ArchiveType.InProgress);
+    }
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,13 +38,13 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((MainActivity)requireActivity()).hideMenu();
+        _archiveType = ComicsFragment.ArchiveType.InProgress;
         _binding.comicsList.setOnScrollChangeListener(this);
         _binding.comicsList.setLayoutManager(new LinearLayoutManager(getContext()));
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(new ComicsHomeAdapter.SwipeCallback(requireContext()));
         itemTouchhelper.attachToRecyclerView(_binding.comicsList);
         new Handler(Looper.myLooper()).post(() -> {
-            _binding.comicsList.setAdapter(new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getComicsInProgress(), HomeFragment.this));
+            _binding.comicsList.setAdapter(new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getComicsInProgress(), InProgressComicsFragment.this));
             new Handler(Looper.getMainLooper()).post(() -> {
                 _binding.comicsList.animate().alpha(1).setDuration(200).start();
                 if(lastScrollY > 0)
@@ -56,7 +61,7 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
 
     @Override
     public void onItemClick(Comic item) {
-        ((MainActivity)requireActivity()).openComic(item, ArchiveFragment.ArchiveType.InProgress);
+        ((MainActivity)requireActivity()).openComic(item, ComicsFragment.ArchiveType.InProgress);
     }
 
     @Override
