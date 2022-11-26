@@ -1,10 +1,10 @@
 package com.xayris.donalduck.ui.archive;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import android.os.Handler;
@@ -13,39 +13,54 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.xayris.donalduck.Category;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.ComicsArchiveAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.databinding.FragmentArchiveTabBinding;
-import com.xayris.donalduck.ui.BaseComicsFragment;
 import com.xayris.donalduck.utils.ItemOffsetDecoration;
 
 
-public class ComicsTabFragment extends BaseComicsFragment implements View.OnScrollChangeListener {
+public class ArchiveTabFragment extends Fragment implements View.OnScrollChangeListener {
 
     private FragmentArchiveTabBinding _binding;
-
-
     private ComicsArchiveAdapter _adapter;
+    private Category _category;
 
-    public ComicsTabFragment() {
+    public ArchiveTabFragment() {
     }
 
-    public ComicsTabFragment(ComicsFragment.ArchiveType type) {
-        super(type);
-    }
-
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        onCreateView(getLayoutInflater(), null,null);
+    public ArchiveTabFragment(Category type) {
+        _category = type;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _adapter = new ComicsArchiveAdapter(requireContext(), ComicsRepository.getInstance().getComicsByArchiveType(_archiveType), (ComicsArchiveAdapter.OnItemClickListener) getParentFragment());
+        if(savedInstanceState != null)
+        {
+            String archiveType = savedInstanceState.getString(Category.class.getName());
+            if(archiveType != null)
+                _category = Category.valueOf(savedInstanceState.getString(Category.class.getName()));
+        }
+        _adapter = new ComicsArchiveAdapter(requireContext(), ComicsRepository.getInstance().getComicsByCategory(_category), (ComicsArchiveAdapter.OnItemClickListener) getParentFragment());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null)
+        {
+            String archiveType = savedInstanceState.getString(Category.class.getName());
+            if(archiveType != null)
+                _category = Category.valueOf(savedInstanceState.getString(Category.class.getName()));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(Category.class.getName(), _category.toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -69,7 +84,7 @@ public class ComicsTabFragment extends BaseComicsFragment implements View.OnScro
     }
 
     private void showArchive() {
-        boolean noComics = ComicsRepository.getInstance().getComicsByArchiveType(_archiveType).size() == 0;
+        boolean noComics = ComicsRepository.getInstance().getComicsByCategory(_category).size() == 0;
         _binding.noComicsContainer.setVisibility(noComics ? View.VISIBLE : View.GONE);
         if (noComics) {
             _binding.loadingIndicator.setVisibility(View.GONE);
@@ -77,7 +92,7 @@ public class ComicsTabFragment extends BaseComicsFragment implements View.OnScro
         }
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (_adapter != null)
-                _adapter.updateData(ComicsRepository.getInstance().getComicsByArchiveType(_archiveType));
+                _adapter.updateData(ComicsRepository.getInstance().getComicsByCategory(_category));
             if (_binding.comicsList.getAdapter() == null)
                 _binding.comicsList.setAdapter(_adapter);
 
@@ -102,5 +117,9 @@ public class ComicsTabFragment extends BaseComicsFragment implements View.OnScro
     public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         lastScrollY = scrollY;
 
+    }
+
+    public Category getCategory() {
+        return _category;
     }
 }

@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,14 +36,14 @@ public class ComicsHomeAdapter extends RecyclerView.Adapter<ComicsHomeAdapter.Co
         _comics = comics;
         _clickListener = clickListener;
         DisplayMetrics metrics = Utility.getDisplayMetrics(context);
-        float itemWidthScale = 3.8f;
-        float itemHeightScale = 2.8f;
-        if(Utility.isLandscape(context)) {
-            itemWidthScale =6.8f;
-            itemHeightScale = 4.9f;
-        }
-        itemWidth = (int)(metrics.widthPixels / itemWidthScale);
-        itemHeight = (int)(metrics.widthPixels / itemHeightScale);
+        TypedValue outValue = new TypedValue();
+        context.getResources().getValue(R.dimen.home_item_width_downscale_factor, outValue, true);
+        float itemWidthDownscaleFactor = outValue.getFloat();
+        outValue = new TypedValue();
+        context.getResources().getValue(R.dimen.home_item_height_downscale_factor, outValue, true);
+        float itemHeightDownscaleFactor = outValue.getFloat();
+        itemWidth = (int)(metrics.widthPixels / itemWidthDownscaleFactor);
+        itemHeight = (int)(metrics.widthPixels / itemHeightDownscaleFactor);
     }
 
     @NonNull
@@ -118,7 +119,7 @@ public class ComicsHomeAdapter extends RecyclerView.Adapter<ComicsHomeAdapter.Co
 
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-            return makeMovementFlags(0, ItemTouchHelper.RIGHT);
+            return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         }
 
         @Override

@@ -4,58 +4,47 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
-import com.google.android.material.navigation.NavigationBarView;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.ActivityMainBinding;
-import com.xayris.donalduck.ui.archive.ComicsFragment;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 import com.xayris.donalduck.utils.Utility;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.realm.Realm;
-
-public class MainActivity extends AppCompatActivity implements  View.OnClickListener, MediaPlayer.OnCompletionListener {
-    private static final int PICKFILE_RESULT_CODE = 1978;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnCompletionListener {
     MediaPlayer _bgMusicPlayer;
     int _bgMusicPlayerCurrentPos;
     ActivityMainBinding _binding;
-    Toolbar _toolbar;
+    NavHostFragment _navHostFragment;
+    NavController _navController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +57,30 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         findViewById(R.id.logo).setFocusable(true);
         findViewById(R.id.logo).setOnClickListener(this);
 
-        _toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(_toolbar);
+        setSupportActionBar(findViewById(R.id.toolbar));
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_home, R.id.navigation_archive, R.id.navigation_detail)
+                .build();
+        _navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
+        if(_navHostFragment != null) {
+            _navController = _navHostFragment.getNavController();
+            NavigationUI.setupActionBarWithNavController(this, _navController, appBarConfiguration);
+            NavigationUI.setupWithNavController(_binding.navView, _navController);
+        }
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
 
-        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, new ComicsFragment(), ComicsFragment.class.getName()).commit();
+    }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(_navController.getCurrentDestination().getId() != R.id.navigation_archive)
+            return false;
+        menu.clear();
+        new MenuInflater(this).inflate(R.menu.toolbar_menu, menu);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     private void startBgMusic() {
@@ -121,22 +125,22 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
             }
         });
         animator.start();
-   }
+    }
 
-   private void hideAnimation() {
-       ValueAnimator animator = ValueAnimator.ofInt(255,0);
-       animator.setDuration(200);
-       animator.setInterpolator(new DecelerateInterpolator());
-       animator.addUpdateListener(valueAnimator -> _binding.animatedImg.setImageAlpha((Integer) valueAnimator.getAnimatedValue()));
-       animator.addListener(new AnimatorListenerAdapter() {
-           @Override
-           public void onAnimationEnd(Animator animation) {
-               super.onAnimationEnd(animation);
-               _binding.animatedImg.setVisibility(View.GONE);
-           }
-       });
-       animator.start();
-   }
+    private void hideAnimation() {
+        ValueAnimator animator = ValueAnimator.ofInt(255,0);
+        animator.setDuration(200);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(valueAnimator -> _binding.animatedImg.setImageAlpha((Integer) valueAnimator.getAnimatedValue()));
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                _binding.animatedImg.setVisibility(View.GONE);
+            }
+        });
+        animator.start();
+    }
 
     @Override
     protected void onResume() {
@@ -158,6 +162,28 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     }
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.backupData) {
+            ComicsRepository.getInstance().backupData(this);
+        }
+        if(item.getItemId() == R.id.restoreData) {
+            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+            chooseFile.setType("*/*");
+            chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            ComicsRepository.getInstance().restoreData(MainActivity.this, result.getData());
+                        }
+                    }).launch(chooseFile);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+    @Override
     public void onClick(View v) {
         if(v.getId() == R.id.logo)
         {
@@ -169,8 +195,12 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         }
     }
 
-    public void openComic(Comic comic, ComicsFragment.ArchiveType archiveType) {
-        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(comic.getIssue(), archiveType), ComicDetailFragment.class.getName()).commit();
+    public void openComic(Comic comic, Category category) {
+        hideNavBar();
+        Bundle args = new Bundle();
+        args.putString(ComicDetailFragment.ARG_ISSUE, comic.getIssue());
+        args.putString(ComicDetailFragment.ARG_CATEGORY, category.toString());
+        _navController.navigate(R.id.action_detail, args);
     }
 
     @Override
@@ -178,103 +208,19 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         hideAnimation();
     }
 
-    public static File commonDocumentDirPath()
-    {
-        File dir = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        {
-            dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-        }
-        else
-        {
-            dir = Environment.getExternalStorageDirectory();
-        }
-
-        return dir;
-    }
-    private void backupData() {
-        final Realm realm = Realm.getDefaultInstance();
-        try {
-            final File dst = new File(commonDocumentDirPath().getPath().concat("/donald_backup.realm"));
-            FileInputStream inStream = new FileInputStream(realm.getPath());
-
-            if (!dst.exists()) {
-                dst.createNewFile();
-            }
-
-            FileOutputStream outStream = new FileOutputStream(dst);
-            FileChannel inChannel = inStream.getChannel();
-            FileChannel outChannel = outStream.getChannel();
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-            inStream.close();
-            outStream.close();
-            Utility.showToast(this, R.string.data_backup_success, Toast.LENGTH_SHORT);
-
-        } catch (Exception e) {
-            realm.close();
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.backupData) {
-            backupData();
-        }
-        if(item.getItemId() == R.id.restoreData) {
-            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-            chooseFile.setType("*/*");
-            chooseFile = Intent.createChooser(chooseFile, "Choose a file");
-            startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICKFILE_RESULT_CODE) {
-            Realm realm = Realm.getDefaultInstance();
-            Uri content_describer = data.getData();
-            InputStream in = null;
-            OutputStream out = null;
-            int outputMessageRes = 0;
-            try {
-                realm.close();
-                in = getContentResolver().openInputStream(content_describer);
-                out = new FileOutputStream(realm.getPath());
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, len);
-                }
-                outputMessageRes = R.string.data_restored_succesfully;
-            } catch (Exception e) {
-                outputMessageRes = R.string.data_restored_failed;
-                try {
-                    Objects.requireNonNull(in).close();
-                    Objects.requireNonNull(out).close();
-                } catch (Exception ignored) {
-
-                }
-
-            } finally {
-                Utility.showToast(getApplicationContext(), outputMessageRes, Toast.LENGTH_SHORT);
-            }
-        }
-    }
-
-
-    public void showMenu() {
-        _toolbar.inflateMenu(R.menu.archive_menu);
-    }
-
-    public void hideMenu() {
-        _toolbar.getMenu().clear();
-    }
 
     public void addComic() {
-        getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).addToBackStack(null).replace(R.id.nav_host_fragment_activity_main, ComicDetailFragment.newInstance(null, null), ComicDetailFragment.class.getName()).commit();
+        _navController.navigate(R.id.action_detail);
+    }
+
+    public void showNavBar() {
+        invalidateOptionsMenu();
+        _binding.navView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+    }
+
+    public void hideNavBar() {
+        invalidateOptionsMenu();
+        _binding.navView.getLayoutParams().height = 0;
+
     }
 }

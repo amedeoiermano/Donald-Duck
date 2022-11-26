@@ -3,6 +3,7 @@ package com.xayris.donalduck.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,14 +29,14 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
         _comics = comics;
         _clickListener = clickListener;
         DisplayMetrics metrics = Utility.getDisplayMetrics(context);
-        float itemWidthScale = 3.5f;
-        float itemHeightScale = 2.5f;
-        if(Utility.isLandscape(context)) {
-            itemWidthScale =6.5f;
-            itemHeightScale = 4.5f;
-        }
-        itemWidth = (int)(metrics.widthPixels / itemWidthScale);
-        itemHeight = (int)(metrics.widthPixels / itemHeightScale);
+        TypedValue outValue = new TypedValue();
+        context.getResources().getValue(R.dimen.archive_item_width_downscale_factor, outValue, true);
+        float itemWidthDownscaleFactor = outValue.getFloat();
+        outValue = new TypedValue();
+        context.getResources().getValue(R.dimen.archive_item_height_downscale_factor, outValue, true);
+        float itemHeightDownscaleFactor = outValue.getFloat();
+        itemWidth = (int)(metrics.widthPixels / itemWidthDownscaleFactor);
+        itemHeight = (int)(metrics.widthPixels / itemHeightDownscaleFactor);
     }
 
     @SuppressLint("NotifyDataSetChanged")

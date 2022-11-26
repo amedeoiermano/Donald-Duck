@@ -1,13 +1,26 @@
 package com.xayris.donalduck.data;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.xayris.donalduck.Category;
+import com.xayris.donalduck.R;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.data.entities.Story;
-import com.xayris.donalduck.ui.archive.ComicsFragment;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.utils.Utility;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -120,15 +133,10 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         _archiveComics = new ComicsArchiveResult(unstartedComics, completedComics);
     }
 
-    public String getNextComicIssueByArchiveType(String currentIssue, ComicsFragment.ArchiveType type) {
-        List<Comic> list = getComicsByArchiveType(type);
+    public String getNextComicIssueByCategory(String currentIssue, Category type) {
+        List<Comic> list = getComicsByCategory(type);
         // gets index of current issue
-        Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
-            @Override
-            public boolean test(Comic comic) {
-                return Objects.equals(comic.getIssue(), currentIssue);
-            }
-        }).findFirst();
+        Optional<Comic> current = list.stream().filter(comic -> Objects.equals(comic.getIssue(), currentIssue)).findFirst();
         if(!current.isPresent())
             return null;
         int currentIndex = list.indexOf(current.get());
@@ -137,15 +145,10 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         return list.get(currentIndex - 1).getIssue();
     }
 
-    public String getPreviousComicIssueByArchiveType(String currentIssue, ComicsFragment.ArchiveType type) {
-        List<Comic> list = getComicsByArchiveType(type);
+    public String getPreviousComicIssueByCategory(String currentIssue, Category type) {
+        List<Comic> list = getComicsByCategory(type);
         // gets index of current issue
-        Optional<Comic> current = list.stream().filter(new Predicate<Comic>() {
-            @Override
-            public boolean test(Comic comic) {
-                return Objects.equals(comic.getIssue(), currentIssue);
-            }
-        }).findFirst();
+        Optional<Comic> current = list.stream().filter(comic -> Objects.equals(comic.getIssue(), currentIssue)).findFirst();
         if(!current.isPresent())
             return null;
         int currentIndex = list.indexOf(current.get());
@@ -160,7 +163,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         processHomeComics();
     }
 
-    public List<Comic> getComicsByArchiveType(ComicsFragment.ArchiveType type) {
+    public List<Comic> getComicsByCategory(Category type) {
         switch (type) {
             case InProgress:
                 return getComicsInProgress();
@@ -213,6 +216,61 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         comic.setCoverUrl(coverUrl);
         realm.copyToRealmOrUpdate(comic);
         realm.commitTransaction();
+    }
+
+    public void backupData(Context context) {
+        final Realm realm = Realm.getDefaultInstance();
+        try {
+            final File dst = new File(Utility.getCommonDocumentDirPath().getPath().concat("/donald_backup.realm"));
+            FileInputStream inStream = new FileInputStream(realm.getPath());
+
+            if (!dst.exists()) {
+                dst.createNewFile();
+            }
+            else
+                dst.delete();
+
+            FileOutputStream outStream = new FileOutputStream(dst);
+            FileChannel inChannel = inStream.getChannel();
+            FileChannel outChannel = outStream.getChannel();
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+            inStream.close();
+            outStream.close();
+            Utility.showToast(context, R.string.data_backup_success, Toast.LENGTH_SHORT);
+
+        } catch (Exception e) {
+            Utility.showToast(context, R.string.data_backup_success, Toast.LENGTH_SHORT);
+        }
+    }
+
+    public void restoreData(Context context, @Nullable Intent data) {
+        Realm realm = Realm.getDefaultInstance();
+        Uri content_describer = data.getData();
+        InputStream in = null;
+        OutputStream out = null;
+        int outputMessageRes = 0;
+        try {
+            realm.close();
+            in = context.getContentResolver().openInputStream(content_describer);
+            out = new FileOutputStream(realm.getPath());
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            outputMessageRes = R.string.data_restored_succesfully;
+        } catch (Exception e) {
+            outputMessageRes = R.string.data_restored_failed;
+            try {
+                Objects.requireNonNull(in).close();
+                Objects.requireNonNull(out).close();
+            } catch (Exception ignored) {
+
+            }
+
+        } finally {
+            Utility.showToast(context, outputMessageRes, Toast.LENGTH_SHORT);
+        }
     }
 
     public static class ComicsArchiveResult {

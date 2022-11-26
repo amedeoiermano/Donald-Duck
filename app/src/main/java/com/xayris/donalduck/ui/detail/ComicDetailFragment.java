@@ -19,6 +19,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
+import com.xayris.donalduck.Category;
 import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.StoriesAdapter;
@@ -26,7 +27,7 @@ import com.xayris.donalduck.data.ComicsExplorer;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentComicDetailBinding;
-import com.xayris.donalduck.ui.archive.ComicsFragment;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.util.Objects;
@@ -36,20 +37,20 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
 
     Comic _comic;
     @Nullable
-    ComicsFragment.ArchiveType _archiveType = null;
+    Category _category = null;
     public static final String ARG_ISSUE = "issue";
-    public static final String ARG_ARCHIVE_TYPE = "archive_type";
+    public static final String ARG_CATEGORY = "archive_type";
     FragmentComicDetailBinding _binding;
     private String _previousIssue, _nextIssue;
     public ComicDetailFragment() {
     }
 
-    public static ComicDetailFragment newInstance(String issue, @Nullable  ComicsFragment.ArchiveType archiveType) {
+    public static ComicDetailFragment newInstance(String issue, @Nullable Category category) {
         ComicDetailFragment fragment = new ComicDetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ISSUE, issue);
-        if(archiveType != null)
-            args.putString(ARG_ARCHIVE_TYPE, archiveType.toString());
+        if(category != null)
+            args.putString(ARG_CATEGORY, category.toString());
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,7 +58,6 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        onCreateView(getLayoutInflater(), null,null);
     }
 
     @Override
@@ -75,30 +75,50 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((MainActivity)requireActivity()).hideMenu();
+        ((MainActivity)requireActivity()).hideNavBar();
         if (getArguments() != null) {
             String issue = getArguments().getString(ARG_ISSUE);
-            String archiveType = getArguments().getString(ARG_ARCHIVE_TYPE);
+            String archiveType = getArguments().getString(ARG_CATEGORY);
             if(archiveType != null)
-                _archiveType = ComicsFragment.ArchiveType.valueOf(getArguments().getString(ARG_ARCHIVE_TYPE));
+                _category = Category.valueOf(getArguments().getString(ARG_CATEGORY));
             if(issue == null)
                 promptNewComic();
             else {
                 loadComic(issue);
             }
         }
+        else
+            promptNewComic();
+    }
+
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null)
+        {
+            String archiveType = savedInstanceState.getString(Category.class.getName());
+            if(archiveType != null)
+                _category = Category.valueOf(savedInstanceState.getString(Category.class.getName()));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(Category.class.getName(), _category.toString());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity)requireActivity()).hideMenu();
+        ((MainActivity)requireActivity()).hideNavBar();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        ((MainActivity)requireActivity()).hideMenu();
+        ((MainActivity)requireActivity()).hideNavBar();
     }
 
     @Override
@@ -111,8 +131,8 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         // gets existing comic
         _comic= ComicsRepository.getInstance().getComic(issue);
         if(_comic != null) {
-            _previousIssue = ComicsRepository.getInstance().getPreviousComicIssueByArchiveType(issue, _archiveType);
-            _nextIssue = ComicsRepository.getInstance().getNextComicIssueByArchiveType(issue, _archiveType);
+            _previousIssue = ComicsRepository.getInstance().getPreviousComicIssueByCategory(issue, _category);
+            _nextIssue = ComicsRepository.getInstance().getNextComicIssueByCategory(issue, _category);
             _binding.previousIssueBtn.setVisibility(_previousIssue != null ? View.VISIBLE : View.GONE);
             _binding.nextIssueBtn.setVisibility(_nextIssue != null ? View.VISIBLE : View.GONE);
             _binding.previousIssueBtn.setText(getString(R.string.issue_number, _previousIssue));

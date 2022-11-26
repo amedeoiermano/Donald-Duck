@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationEffect;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public class Utility {
@@ -71,9 +74,14 @@ public class Utility {
         }
     }
 
-    public static boolean isLandscape(Context context) {
-        int orientation = context.getResources().getConfiguration().orientation;
-        return orientation == Configuration.ORIENTATION_LANDSCAPE;
+    public static File getCommonDocumentDirPath() {
+        File dir = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        else
+            dir = Environment.getExternalStorageDirectory();
+
+        return dir;
     }
 
 }
