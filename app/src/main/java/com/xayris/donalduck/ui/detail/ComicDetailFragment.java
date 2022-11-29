@@ -6,11 +6,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
+import android.util.DisplayMetrics;
+import android.util.Size;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -19,6 +22,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.xayris.donalduck.Category;
 import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.R;
@@ -27,10 +31,7 @@ import com.xayris.donalduck.data.ComicsExplorer;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentComicDetailBinding;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
 import com.xayris.donalduck.utils.Utility;
-
-import java.util.Objects;
 
 
 public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnComicDownloadedListener, View.OnClickListener {
@@ -42,6 +43,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     public static final String ARG_CATEGORY = "archive_type";
     FragmentComicDetailBinding _binding;
     private String _previousIssue, _nextIssue;
+    Size _coverImageSize;
     public ComicDetailFragment() {
     }
 
@@ -69,6 +71,16 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         _binding.coverImg.setOnClickListener(this);
         _binding.previousIssueBtn.setOnClickListener(this);
         _binding.nextIssueBtn.setOnClickListener(this);
+        DisplayMetrics metrics = Utility.getDisplayMetrics(requireContext());
+        TypedValue outValue = new TypedValue();
+        getResources().getValue(R.dimen.detail_width_downscale_factor, outValue, true);
+        float itemWidthDownscaleFactor = outValue.getFloat();
+        outValue = new TypedValue();
+        getResources().getValue(R.dimen.detail_height_downscale_factor, outValue, true);
+        float itemHeightDownscaleFactor = outValue.getFloat();
+        _coverImageSize = new Size((int)(metrics.widthPixels / itemWidthDownscaleFactor),(int)(metrics.widthPixels / itemHeightDownscaleFactor));
+        _binding.coverImg.getLayoutParams().width = _coverImageSize.getWidth();
+        _binding.coverImg.getLayoutParams().height = _coverImageSize.getHeight();
         return _binding.getRoot();
     }
 
@@ -105,7 +117,8 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString(Category.class.getName(), _category.toString());
+        if(_category != null)
+            outState.putString(Category.class.getName(), _category.toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -204,7 +217,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         Utility.hideToast();
         _binding.issueTxt.setText(getString(R.string.issue_number, _comic.getIssue()));
         _binding.issueDateTxt.setText(_comic.getIssueDateFormatted());
-        Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).into(_binding.coverImg);
+        Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).placeholder(R.drawable.cover_placeholder).override(_coverImageSize.getWidth(), _coverImageSize.getHeight()).transition(DrawableTransitionOptions.withCrossFade()).into(_binding.coverImg);
         _binding.storiesList.setAdapter(new StoriesAdapter(_comic, ComicsRepository.getInstance()::setStoryRead));
         _binding.deleteComicBtn.setVisibility(View.VISIBLE);
     }
@@ -230,8 +243,8 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         input.setTextColor(Color.WHITE);
         input.setText(_comic.getCoverUrl());
-        if(_comic.getCoverUrl() != null)
-            input.setSelection(0, Objects.requireNonNull(input.getText()).length());
+        if(input.getText() != null)
+            input.setSelection(0, input.getText().length());
         builder.setView(input);
 
         builder.setPositiveButton(getString(R.string.confirm), (dialog, which) -> {
@@ -242,7 +255,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
                 return;
             }
             ComicsRepository.getInstance().updateComicCoverUrl(_comic, newCoverUrl.toString());
-            Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).into(_binding.coverImg);
+            Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).placeholder(R.drawable.cover_placeholder).override(_coverImageSize.getWidth(), _coverImageSize.getHeight()).transition(DrawableTransitionOptions.withCrossFade()).into(_binding.coverImg);
         });
         builder.setCancelable(false);
         builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> { dialog.cancel();

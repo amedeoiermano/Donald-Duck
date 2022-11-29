@@ -4,7 +4,5 @@
     <color type="color" name="red_bg">#B51815</color>
     <color type="color" name="yellow_bg">#B5AD55</color>
     <color type="color" name="yellow">#F2E900</color>
-    <color type="color" name="black">#080808</color>
     <color type="color" name="text_shadow">#7F000000</color>
-
 </resources>

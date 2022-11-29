@@ -32,7 +32,6 @@ import com.xayris.donalduck.databinding.ActivityMainBinding;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
 import com.xayris.donalduck.utils.Utility;
 
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnCompletionListener {
@@ -62,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.logo).setOnClickListener(this);
 
         setSupportActionBar(findViewById(R.id.toolbar));
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_archive, R.id.navigation_detail)
@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if(_navController.getCurrentDestination() == null)
+            return false;
         if(_navController.getCurrentDestination().getId() != R.id.navigation_archive)
             return false;
         menu.clear();

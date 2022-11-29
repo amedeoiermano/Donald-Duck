@@ -1,5 +1,6 @@
 package com.xayris.donalduck.ui.archive;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -101,7 +102,7 @@ public class ArchiveTabFragment extends Fragment implements OrderedRealmCollecti
     private void showArchive() {
         boolean noComics = ComicsRepository.getInstance().getComicsByCategory(_category).size() == 0;
         _binding.noComicsContainer.setVisibility(noComics ? View.VISIBLE : View.GONE);
-        int resId = requireContext().getResources().getIdentifier("no_comics_" + _category.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
+        @SuppressLint("DiscouragedApi") int resId = requireContext().getResources().getIdentifier("no_comics_" + _category.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
         if(resId != 0)
             _binding.noComicsTxt.setText(requireContext().getString(resId));
         if (noComics) {
@@ -127,7 +128,7 @@ public class ArchiveTabFragment extends Fragment implements OrderedRealmCollecti
     }
 
     @Override
-    public void onChange(RealmResults<Comic> comics, OrderedCollectionChangeSet changeSet) {
+    public void onChange(@NonNull RealmResults<Comic> comics, @NonNull OrderedCollectionChangeSet changeSet) {
         if (_adapter != null)
             _adapter.updateData(ComicsRepository.getInstance().getComicsByCategory(_category));
     }

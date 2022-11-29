@@ -3,6 +3,7 @@ package com.xayris.donalduck.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.util.Size;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.ComicArchiveListItemBinding;
@@ -23,8 +26,7 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
 
     private List<Comic> _comics;
     private final OnItemClickListener _clickListener;
-    private final int itemWidth;
-    private final int itemHeight;
+    private final Size _coverSize;
     public ComicsArchiveAdapter(Context context, List<Comic> comics, OnItemClickListener clickListener) {
         _comics = comics;
         _clickListener = clickListener;
@@ -35,8 +37,7 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
         outValue = new TypedValue();
         context.getResources().getValue(R.dimen.archive_item_height_downscale_factor, outValue, true);
         float itemHeightDownscaleFactor = outValue.getFloat();
-        itemWidth = (int)(metrics.widthPixels / itemWidthDownscaleFactor);
-        itemHeight = (int)(metrics.widthPixels / itemHeightDownscaleFactor);
+        _coverSize = new Size((int)(metrics.widthPixels / itemWidthDownscaleFactor), (int)(metrics.widthPixels / itemHeightDownscaleFactor));
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -51,7 +52,7 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.comic_archive_list_item, parent, false);
 
-        return new ComicViewHolder(view, itemWidth, itemHeight);
+        return new ComicViewHolder(view, _coverSize);
     }
 
     @Override
@@ -67,16 +68,18 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
 
     public static class ComicViewHolder extends RecyclerView.ViewHolder {
         final ComicArchiveListItemBinding _binding;
-        public ComicViewHolder(@NonNull View itemView, int itemWidth, int itemHeight) {
+        final Size _coverSize;
+        public ComicViewHolder(@NonNull View itemView, Size coverSize) {
             super(itemView);
-            itemView.getLayoutParams().width = itemWidth;
-            itemView.getLayoutParams().height = itemHeight;
+            _coverSize = coverSize;
+            itemView.getLayoutParams().width = _coverSize.getWidth();
+            itemView.getLayoutParams().height = _coverSize.getHeight();
             _binding = ComicArchiveListItemBinding.bind(itemView);
         }
 
         public void update(Comic comic, OnItemClickListener clickListener) {
             _binding.issueTxt.setText(itemView.getContext().getString(R.string.issue_number,comic.getIssue().toUpperCase()));
-            Glide.with(itemView.getContext().getApplicationContext()).load(comic.getCoverUrl()).placeholder(R.drawable.cover_placeholder).into(_binding.coverImg);
+            Glide.with(itemView.getContext().getApplicationContext()).load(comic.getCoverUrl()).transition(DrawableTransitionOptions.withCrossFade()).override(_coverSize.getWidth(),_coverSize.getHeight()).placeholder(R.drawable.cover_placeholder).into(_binding.coverImg);
             itemView.setOnClickListener(v -> clickListener.onItemClick(comic));
         }
     }

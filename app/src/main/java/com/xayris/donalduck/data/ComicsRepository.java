@@ -12,8 +12,6 @@ import com.xayris.donalduck.Category;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.data.entities.Story;
-import com.xayris.donalduck.ui.archive.ArchiveFragment;
-import com.xayris.donalduck.ui.archive.ArchiveTabFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.io.File;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.realm.OrderedCollectionChangeSet;
@@ -207,7 +204,9 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     public void deleteComic(Comic comic) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        Objects.requireNonNull(realm.where(Comic.class).equalTo("issue", comic.getIssue()).findFirst()).deleteFromRealm();
+        Comic toDelete = realm.where(Comic.class).equalTo("issue", comic.getIssue()).findFirst();
+        if(toDelete != null)
+            toDelete.deleteFromRealm();
         realm.commitTransaction();
     }
 
@@ -226,11 +225,15 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
             FileInputStream inStream = new FileInputStream(realm.getPath());
 
             if (!dst.exists()) {
-                dst.createNewFile();
+                boolean fileCreateResult = dst.createNewFile();
+                if(!fileCreateResult)
+                    throw new Exception();
             }
-            else
-                dst.delete();
-
+            else {
+                boolean fileDeleteResult = dst.delete();
+                if(!fileDeleteResult)
+                    throw new Exception();
+            }
             FileOutputStream outStream = new FileOutputStream(dst);
             FileChannel inChannel = inStream.getChannel();
             FileChannel outChannel = outStream.getChannel();
@@ -245,6 +248,8 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     }
 
     public void restoreData(Context context, @Nullable Intent data) {
+        if(data == null)
+            return;
         Realm realm = Realm.getDefaultInstance();
         Uri content_describer = data.getData();
         InputStream in = null;
@@ -263,8 +268,10 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         } catch (Exception e) {
             outputMessageRes = R.string.data_restored_failed;
             try {
-                Objects.requireNonNull(in).close();
-                Objects.requireNonNull(out).close();
+                if(in != null)
+                    in.close();
+                if(out != null)
+                    out.close();
             } catch (Exception ignored) {
 
             }

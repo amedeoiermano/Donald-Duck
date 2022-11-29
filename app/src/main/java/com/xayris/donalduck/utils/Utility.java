@@ -3,7 +3,6 @@ package com.xayris.donalduck.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -75,12 +74,11 @@ public class Utility {
     }
 
     public static File getCommonDocumentDirPath() {
-        File dir = null;
+        File dir;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         else
             dir = Environment.getExternalStorageDirectory();
-
         return dir;
     }
 

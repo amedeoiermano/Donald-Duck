@@ -23,8 +23,6 @@ import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentArchiveBinding;
 
-import java.util.Objects;
-
 public class ArchiveFragment extends Fragment implements  View.OnClickListener, ComicsArchiveAdapter.OnItemClickListener {
 
     private FragmentArchiveBinding _binding;
@@ -54,7 +52,9 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
         _tabLayout.setTabMode(TabLayout.MODE_AUTO);
         new TabLayoutMediator(_tabLayout, _viewPager, (tab, position) -> {
             Context context = requireContext();
-            Category category = ((ArchivePagerAdapter) Objects.requireNonNull(_viewPager.getAdapter())).getFragmentCategory(position);
+            if(_viewPager.getAdapter() == null)
+                return;
+            Category category = ((ArchivePagerAdapter)_viewPager.getAdapter()).getFragmentCategory(position);
             @SuppressLint("DiscouragedApi") int resIdentifier = context.getResources().getIdentifier(category.toString().toLowerCase() + "_comics", "string", context.getPackageName());
             tab.setText(getString(resIdentifier, ComicsRepository.getInstance().getComicsByCategory(category).size()));
         }).attach();

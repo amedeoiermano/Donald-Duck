@@ -1,5 +1,6 @@
 package com.xayris.donalduck.ui.home;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,8 +20,6 @@ import com.xayris.donalduck.adapters.ComicsHomeAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentHomeBinding;
-
-import java.util.Objects;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -65,16 +64,14 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
         new Handler(Looper.myLooper()).post(() -> {
             boolean noComics = ComicsRepository.getInstance().getComicsInProgress().size() == 0;
             _binding.noComicsContainer.setVisibility(noComics ? View.VISIBLE : View.GONE);
-            int resId = requireContext().getResources().getIdentifier("no_comics_" + Category.InProgress.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
+            @SuppressLint("DiscouragedApi") int resId = requireContext().getResources().getIdentifier("no_comics_" + Category.InProgress.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
             if(resId != 0)
                 _binding.noComicsTxt.setText(requireContext().getString(resId));
             if (_adapter != null)
                 _adapter.updateData(ComicsRepository.getInstance().getComicsByCategory(Category.InProgress));
             if (_binding.comicsList.getAdapter() == null)
                 _binding.comicsList.setAdapter(_adapter);
-            new Handler(Looper.getMainLooper()).post(() -> {
-                _binding.comicsList.animate().alpha(1).setDuration(200).start();
-            });
+            new Handler(Looper.getMainLooper()).post(() -> _binding.comicsList.animate().alpha(1).setDuration(200).start());
         });
     }
 
@@ -101,11 +98,11 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
     @Override
     public void onSetNextStoryRead(Comic item, int listPosition) {
         ComicsRepository.getInstance().setStoryRead(item.getNextUnreadStory());
-        ((ComicsHomeAdapter) Objects.requireNonNull(_binding.comicsList.getAdapter())).updateData(ComicsRepository.getInstance().getComicsInProgress());
+            _adapter.updateData(ComicsRepository.getInstance().getComicsInProgress());
     }
 
     @Override
-    public void onChange(RealmResults<Comic> comics, OrderedCollectionChangeSet changeSet) {
+    public void onChange(@NonNull RealmResults<Comic> comics, @NonNull OrderedCollectionChangeSet changeSet) {
         if (_adapter != null)
             _adapter.updateData(ComicsRepository.getInstance().getComicsByCategory(Category.InProgress));
     }

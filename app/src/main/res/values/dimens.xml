@@ -1,7 +1,9 @@
 <resources>
     <dimen name="item_offset">5dp</dimen>
-    <item name="archive_item_width_downscale_factor" type="dimen" format="float">3.5</item>
+    <item name="archive_item_width_downscale_factor" type="dimen" format="float">3.4</item>
     <item name="archive_item_height_downscale_factor" type="dimen" format="float">2.5</item>
-    <item name="home_item_width_downscale_factor" type="dimen" format="float">3.8</item>
+    <item name="home_item_width_downscale_factor" type="dimen" format="float">3.7</item>
     <item name="home_item_height_downscale_factor" type="dimen" format="float">2.8</item>
+    <item name="detail_width_downscale_factor" type="dimen" format="float">3.1</item>
+    <item name="detail_height_downscale_factor" type="dimen" format="float">2.2</item>
 </resources>
