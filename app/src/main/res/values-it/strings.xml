@@ -20,7 +20,7 @@
     <string name="no_comics_inprogress_description">Non hai ancora iniziato alcun fumetto.</string>
     <string name="no_comics_unstarted_description">Non hai fumetti da iniziare.</string>
     <string name="inprogress_comics">In corso (%1$s)</string>
-    <string name="unstarted_comics">Non letti (%1$s)</string>
+    <string name="unstarted_comics">Da iniziare (%1$s)</string>
     <string name="completed_comics">Finiti (%1$s)</string>
     <string name="all_comics">Tutti (%1$s)</string>
     <string name="delete_comic">Elimina</string>

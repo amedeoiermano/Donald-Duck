@@ -19,7 +19,7 @@
     <string name="no_comics_inprogress_description">You haven\'t started any comics yet.</string>
     <string name="no_comics_unstarted_description">You don\'t have comics to start.</string>
     <string name="inprogress_comics">In progress (%1$s)</string>
-    <string name="unstarted_comics">To read (%1$s)</string>
+    <string name="unstarted_comics">To start (%1$s)</string>
     <string name="completed_comics">Completed (%1$s)</string>
     <string name="all_comics">All (%1$s)</string>
     <string name="delete_comic">Delete</string>
