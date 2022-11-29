@@ -135,8 +135,10 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
             _nextIssue = ComicsRepository.getInstance().getNextComicIssueByCategory(issue, _category);
             _binding.previousIssueBtn.setVisibility(_previousIssue != null ? View.VISIBLE : View.GONE);
             _binding.nextIssueBtn.setVisibility(_nextIssue != null ? View.VISIBLE : View.GONE);
-            _binding.previousIssueBtn.setText(getString(R.string.issue_number, _previousIssue));
-            _binding.nextIssueBtn.setText(getString(R.string.issue_number, _nextIssue));
+            if(_previousIssue != null)
+                _binding.previousIssueBtn.setText(getString(R.string.issue_number, _previousIssue.toUpperCase()));
+            if(_nextIssue != null)
+                _binding.nextIssueBtn.setText(getString(R.string.issue_number, _nextIssue.toUpperCase()));
             showComic();
         }
     }

@@ -15,14 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -45,9 +41,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ActivityMainBinding _binding;
     NavHostFragment _navHostFragment;
     NavController _navController;
+    ActivityResultLauncher<Intent> _restoreDataLauncher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        _restoreDataLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        ComicsRepository.getInstance().restoreData(MainActivity.this, result.getData());
+                    }
+                });
         ComicsRepository.getInstance().createDatabase(this);
         ComicsRepository.getInstance().loadComics();
         _binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -71,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
-
     }
 
     @Override
@@ -170,13 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
             chooseFile.setType("*/*");
             chooseFile = Intent.createChooser(chooseFile, "Choose a file");
-            registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            ComicsRepository.getInstance().restoreData(MainActivity.this, result.getData());
-                        }
-                    }).launch(chooseFile);
+            _restoreDataLauncher.launch(chooseFile);
         }
         return super.onOptionsItemSelected(item);
     }

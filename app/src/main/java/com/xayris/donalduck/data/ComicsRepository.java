@@ -13,6 +13,7 @@ import com.xayris.donalduck.R;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.data.entities.Story;
 import com.xayris.donalduck.ui.archive.ArchiveFragment;
+import com.xayris.donalduck.ui.archive.ArchiveTabFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.io.File;
@@ -271,6 +272,14 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         } finally {
             Utility.showToast(context, outputMessageRes, Toast.LENGTH_SHORT);
         }
+    }
+
+    public void addComicsChangeListener(OrderedRealmCollectionChangeListener<RealmResults<Comic>> listener) {
+        _comics.addChangeListener(listener);
+    }
+
+    public void removeComicsChangeListener(OrderedRealmCollectionChangeListener<RealmResults<Comic>> listener) {
+        _comics.removeChangeListener(listener);
     }
 
     public static class ComicsArchiveResult {
