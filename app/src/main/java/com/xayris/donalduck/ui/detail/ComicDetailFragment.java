@@ -1,5 +1,8 @@
 package com.xayris.donalduck.ui.detail;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -12,6 +15,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.xayris.donalduck.Category;
 import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.R;
@@ -177,7 +182,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
                 return;
 
             }
-            Utility.showToast(getContext(), R.string.downloading_comic, Toast.LENGTH_LONG);
+            showAnimation();
             // gets existing comic
             _comic= ComicsRepository.getInstance().getComic(issue.toString());
             if(_comic != null)
@@ -200,6 +205,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     @Override
     public void onComicDownloaded(ComicsExplorer.DownloadComicResult result) {
         requireActivity().runOnUiThread(() -> {
+            hideAnimation();
             if (result.getStatus() == ComicsExplorer.DownloadComicResult.DownloadComicStatus.Success) {
                 _comic = result.getComic();
                 showComic();
@@ -215,6 +221,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
 
     private void showComic() {
         Utility.hideToast();
+        hideAnimation();
         _binding.issueTxt.setText(getString(R.string.issue_number, _comic.getIssue()));
         _binding.issueDateTxt.setText(_comic.getIssueDateFormatted());
         Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).placeholder(R.drawable.cover_placeholder).override(_coverImageSize.getWidth(), _coverImageSize.getHeight()).transition(DrawableTransitionOptions.withCrossFade()).into(_binding.coverImg);
@@ -278,5 +285,36 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         ComicsRepository.getInstance().deleteComic(_comic);
         requireActivity().onBackPressed();
         Toast.makeText(requireContext(), R.string.comic_deleted, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showAnimation() {
+        Glide.with(getContext().getApplicationContext()).load(R.drawable.donaldsleeping).into(new DrawableImageViewTarget(_binding.animatedImg));
+        ValueAnimator animator = ValueAnimator.ofInt(0,255);
+        animator.setDuration(200);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(valueAnimator -> _binding.animatedImg.setImageAlpha((Integer) valueAnimator.getAnimatedValue()));
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                _binding.animatedImg.setVisibility(View.VISIBLE);
+            }
+        });
+        animator.start();
+    }
+
+    private void hideAnimation() {
+        ValueAnimator animator = ValueAnimator.ofInt(255,0);
+        animator.setDuration(200);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addUpdateListener(valueAnimator -> _binding.animatedImg.setImageAlpha((Integer) valueAnimator.getAnimatedValue()));
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                _binding.animatedImg.setVisibility(View.GONE);
+            }
+        });
+        animator.start();
     }
 }
