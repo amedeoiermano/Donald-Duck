@@ -6,10 +6,6 @@
     android:layout_height="wrap_content">
     <androidx.appcompat.widget.Toolbar
     android:id="@+id/toolbar"
-        app:popupTheme="@style/Popup"
-        android:theme="@style/Toolbar"
-        android:background="@color/red"
-        android:foregroundTint="@color/yellow"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,7 +16,6 @@
             <ImageView
                 android:id="@+id/logo"
                 android:src="@drawable/logo_nav"
-                android:contentDescription="@string/cdesc_navbarlogo"
                 android:scaleType="centerInside"
                 android:padding="5dp"
                 android:layout_gravity="center"
