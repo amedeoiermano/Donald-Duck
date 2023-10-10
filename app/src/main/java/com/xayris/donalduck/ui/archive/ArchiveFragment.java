@@ -34,7 +34,6 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
         return _binding.getRoot();
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -71,7 +70,6 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
     public void onResume() {
         super.onResume();
         ((MainActivity)requireActivity()).showNavBar();
-
     }
 
     @Override
@@ -90,7 +88,6 @@ public class ArchiveFragment extends Fragment implements  View.OnClickListener, 
             addComic();
         }
     }
-
 
     @Override
     public void onItemClick(Comic item) {

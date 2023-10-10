@@ -122,7 +122,6 @@ public class ArchiveTabFragment extends Fragment implements OrderedRealmCollecti
         },200);
     }
 
-
     public Category getCategory() {
         return _category;
     }

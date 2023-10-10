@@ -179,9 +179,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.logo)
@@ -206,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onCompletion(MediaPlayer mp) {
         hideAnimation();
     }
-
 
     public void addComic() {
         _navController.navigate(R.id.action_detail);
