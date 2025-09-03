@@ -26,6 +26,8 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.xayris.donalduck.Category;
@@ -224,7 +226,19 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         hideAnimation();
         _binding.issueTxt.setText(getString(R.string.issue_number, _comic.getIssue()));
         _binding.issueDateTxt.setText(_comic.getIssueDateFormatted());
-        Glide.with(requireContext().getApplicationContext()).load(_comic.getCoverUrl()).placeholder(R.drawable.cover_placeholder).override(_coverImageSize.getWidth(), _coverImageSize.getHeight()).transition(DrawableTransitionOptions.withCrossFade()).into(_binding.coverImg);
+        GlideUrl glideUrl = new GlideUrl(
+                _comic.getCoverUrl(),
+                new LazyHeaders.Builder()
+                        .addHeader("Cookie", "coa-session=4bnv9kak52nonupgi1sfn482v4")
+                        .build()
+        );
+
+        Glide.with(requireContext().getApplicationContext())
+                .load(glideUrl)
+                .placeholder(R.drawable.cover_placeholder)
+                .override(_coverImageSize.getWidth(), _coverImageSize.getHeight())
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(_binding.coverImg);
         _binding.storiesList.setAdapter(new StoriesAdapter(_comic, ComicsRepository.getInstance()::setStoryRead));
         _binding.deleteComicBtn.setVisibility(View.VISIBLE);
     }

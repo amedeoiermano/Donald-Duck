@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.xayris.donalduck.R;
@@ -91,7 +93,19 @@ public class ComicsHomeAdapter extends RecyclerView.Adapter<ComicsHomeAdapter.Co
             _listener = actionListener;
             _comic = comic;
             _position = position;
-            Glide.with(itemView.getContext().getApplicationContext()).load(comic.getCoverUrl()).transition(DrawableTransitionOptions.withCrossFade()).apply(new RequestOptions().override(_coverSize.getWidth(),_coverSize.getHeight()).placeholder(R.drawable.cover_placeholder)).into(_binding.coverImg);
+            GlideUrl glideUrl = new GlideUrl(
+                    comic.getCoverUrl(),
+                    new LazyHeaders.Builder()
+                            .addHeader("Cookie", "coa-session=4bnv9kak52nonupgi1sfn482v4")
+                            .build()
+            );
+
+            Glide.with(itemView.getContext().getApplicationContext())
+                    .load(glideUrl)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .override(_coverSize.getWidth(), _coverSize.getHeight())
+                    .placeholder(R.drawable.cover_placeholder)
+                    .into(_binding.coverImg);
             _binding.issueDateTxt.setText(comic.getIssueDateFormatted());
             _binding.issueTxt.setText(itemView.getContext().getString(R.string.issue_number,comic.getIssue().toUpperCase()));
             _binding.storiesProgressTxt.setText(comic.getStoriesProgressFormatted());

@@ -41,7 +41,8 @@ public class ComicsExplorer {
                 Comic comic = new Comic();
                 comic.setIssue(issueNumber);
 
-                Document doc = Jsoup.connect(ISSUE_BASE_URL + issueNumber).get();
+                Document doc = Jsoup.connect(ISSUE_BASE_URL + issueNumber).cookie("coa-session", "4bnv9kak52nonupgi1sfn482v4")
+                        .get();
 
                 // checks if comic exists
                 if(checkComic(doc)) {

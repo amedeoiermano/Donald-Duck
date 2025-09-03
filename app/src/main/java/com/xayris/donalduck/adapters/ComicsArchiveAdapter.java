@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.xayris.donalduck.R;
@@ -79,7 +81,19 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
 
         public void update(Comic comic, OnItemClickListener clickListener) {
             _binding.issueTxt.setText(itemView.getContext().getString(R.string.issue_number,comic.getIssue().toUpperCase()));
-            Glide.with(itemView.getContext().getApplicationContext()).load(comic.getCoverUrl()).transition(DrawableTransitionOptions.withCrossFade()).override(_coverSize.getWidth(),_coverSize.getHeight()).placeholder(R.drawable.cover_placeholder).into(_binding.coverImg);
+            GlideUrl glideUrl = new GlideUrl(
+                    comic.getCoverUrl(),
+                    new LazyHeaders.Builder()
+                            .addHeader("Cookie", "coa-session=4bnv9kak52nonupgi1sfn482v4")
+                            .build()
+            );
+
+            Glide.with(itemView.getContext().getApplicationContext())
+                    .load(glideUrl)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .override(_coverSize.getWidth(), _coverSize.getHeight())
+                    .placeholder(R.drawable.cover_placeholder)
+                    .into(_binding.coverImg);
             itemView.setOnClickListener(v -> clickListener.onItemClick(comic));
         }
     }
