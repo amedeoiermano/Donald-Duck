@@ -229,7 +229,10 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         GlideUrl glideUrl = new GlideUrl(
                 _comic.getCoverUrl(),
                 new LazyHeaders.Builder()
-                        .addHeader("Cookie", "coa-session=4bnv9kak52nonupgi1sfn482v4")
+                        .addHeader(
+                                "Cookie",
+                                "coa-session=" + Utility.InducksCookie
+                        )
                         .build()
         );
 

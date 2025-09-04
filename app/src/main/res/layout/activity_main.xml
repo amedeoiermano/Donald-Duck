@@ -44,4 +44,9 @@
         android:layout_height="8dp"
         app:layout_constraintBottom_toTopOf="@id/nav_view"
         android:background="@drawable/navbar_dropshadow"/>
+    <WebView
+        android:id="@+id/webView"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

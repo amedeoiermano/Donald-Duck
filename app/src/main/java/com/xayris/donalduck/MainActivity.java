@@ -5,7 +5,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +16,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -30,6 +35,7 @@ import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.ActivityMainBinding;
 import com.xayris.donalduck.ui.detail.ComicDetailFragment;
+import com.xayris.donalduck.ui.home.RandomStoryFragment;
 import com.xayris.donalduck.utils.Utility;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     NavHostFragment _navHostFragment;
     NavController _navController;
     ActivityResultLauncher<Intent> _restoreDataLauncher;
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,20 +68,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.logo).setOnClickListener(this);
 
         setSupportActionBar(findViewById(R.id.toolbar));
-        if(getSupportActionBar() != null)
+        if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home, R.id.navigation_archive, R.id.navigation_detail)
                 .build();
         _navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
-        if(_navHostFragment != null) {
+        if (_navHostFragment != null) {
             _navController = _navHostFragment.getNavController();
             NavigationUI.setupActionBarWithNavController(this, _navController, appBarConfiguration);
             NavigationUI.setupWithNavController(_binding.navView, _navController);
         }
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
+
+        SharedPreferences prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        String sessionCookie = prefs.getString("coa-session", null);
+
+        if (sessionCookie != null) {
+            Utility.InducksCookie = sessionCookie;
+            // se il cookie c'è, non mostro la webview
+            _binding.webView.setVisibility(View.GONE);
+        } else {
+            // se il cookie non c'è, preparo la webview per il login
+            _binding.webView.getSettings().setJavaScriptEnabled(true);
+            _binding.webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    checkCoaSessionCookie(url);
+
+                    if (url.contains("maccount.php")) {
+                        String js = "javascript:(function() { " +
+                                "document.getElementById('login').value='aiermano';" +
+                                "document.getElementById('pass').value='F4ttiavantiinducks!';" +
+                                "document.getElementById('loginbutton').click();" +
+                                "})()";
+                        view.evaluateJavascript(js, null);
+                    }
+                }
+            });
+
+            _binding.webView.loadUrl("https://inducks.org/maccount.php");
+        }
     }
 
     @Override
@@ -217,5 +254,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         invalidateOptionsMenu();
         _binding.navView.getLayoutParams().height = 0;
 
+    }
+
+    public void getRandomUnreadStory() {
+
+        RandomStoryFragment.newInstance().show(getSupportFragmentManager(), RandomStoryFragment.class.getName());
+    }
+
+    private void checkCoaSessionCookie(String url) {
+        CookieManager cookieManager = CookieManager.getInstance();
+        String cookies = cookieManager.getCookie(url);
+        if (cookies != null && cookies.contains("coa-session")) {
+            String[] cookieArray = cookies.split(";");
+            for (String cookie : cookieArray) {
+                cookie = cookie.trim();
+                if (cookie.startsWith("coa-session=")) {
+                    String sessionValue = cookie.substring("coa-session=".length());
+                    Utility.InducksCookie = sessionValue;
+                    SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                    prefs.edit().putString("coa-session", sessionValue).apply();
+
+                    runOnUiThread(() -> _binding.webView.setVisibility(View.GONE));
+                    break;
+                }
+            }
+        }
     }
 }

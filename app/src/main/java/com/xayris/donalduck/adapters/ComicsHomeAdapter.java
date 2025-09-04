@@ -22,7 +22,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.data.entities.Story;
@@ -96,7 +95,10 @@ public class ComicsHomeAdapter extends RecyclerView.Adapter<ComicsHomeAdapter.Co
             GlideUrl glideUrl = new GlideUrl(
                     comic.getCoverUrl(),
                     new LazyHeaders.Builder()
-                            .addHeader("Cookie", "coa-session=4bnv9kak52nonupgi1sfn482v4")
+                            .addHeader(
+                                    "Cookie",
+                                    "coa-session=" + Utility.InducksCookie
+                            )
                             .build()
             );
 

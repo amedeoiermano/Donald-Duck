@@ -20,11 +20,14 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -65,6 +68,21 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
     {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Comic.class).equalTo("issue", issue).findFirst();
+    }
+
+    public AbstractMap.SimpleEntry<Comic, Story> getRandomUnreadStory() {
+        Random random = new Random();
+
+        List<AbstractMap.SimpleEntry<Comic, Story>> unread = getComicsInProgress().stream()
+                .flatMap(comic -> comic.getStories().stream()
+                        .filter(story -> !story.getIsRead())
+                        .map(story -> new AbstractMap.SimpleEntry<>(comic, story))
+                )
+                .collect(Collectors.toList());
+
+        if (unread.isEmpty()) return null;
+
+        return unread.get(random.nextInt(unread.size()));
     }
 
     public void saveComic(Comic comic) {

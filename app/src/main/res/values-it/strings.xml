@@ -40,6 +40,9 @@
     <!-- Content descriptions-->
     <string name="cdesc_navbarlogo">Logo barra di navigazione</string>
     <string name="cdesc_addComicBtn">Bottone per aggiungere nuovo fumetto</string>
+    <string name="cdesc_randomUnreadStoryBtn">Bottone per ottenere storia non letta random</string>
     <string name="cdesc_animatedImg">Gif animata per l\'easter egg musicale</string>
     <string name="cdesc_coverImg">Immagine di copertina del fumetto</string>
+    <string name="set_story_read">Segna come letta</string>
+    <string name="unset_story_read">Segna come non letta</string>
 </resources>

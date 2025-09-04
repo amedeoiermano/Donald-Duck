@@ -16,16 +16,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.xayris.donalduck.Category;
 import com.xayris.donalduck.MainActivity;
+import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.ComicsHomeAdapter;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.databinding.FragmentHomeBinding;
+import com.xayris.donalduck.ui.archive.ArchiveFragment;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.RealmResults;
 
-public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicActionListener, OrderedRealmCollectionChangeListener<RealmResults<Comic>> {
+public class HomeFragment extends Fragment implements View.OnClickListener, ComicsHomeAdapter.ComicActionListener, OrderedRealmCollectionChangeListener<RealmResults<Comic>> {
 
     private FragmentHomeBinding _binding;
     private ComicsHomeAdapter _adapter;
@@ -53,6 +55,7 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
         super.onViewCreated(view, savedInstanceState);
         if(!_init) {
             _binding.comicsList.setLayoutManager(new LinearLayoutManager(getContext()));
+            _binding.randomUnreadStoryBtn.setOnClickListener(HomeFragment.this);
             ItemTouchHelper itemTouchhelper = new ItemTouchHelper(new ComicsHomeAdapter.SwipeCallback(requireContext()));
             itemTouchhelper.attachToRecyclerView(_binding.comicsList);
             showHome();
@@ -105,5 +108,12 @@ public class HomeFragment extends Fragment implements ComicsHomeAdapter.ComicAct
     public void onChange(@NonNull RealmResults<Comic> comics, @NonNull OrderedCollectionChangeSet changeSet) {
         if (_adapter != null)
             _adapter.updateData(ComicsRepository.getInstance().getComicsByCategory(Category.InProgress));
+    }
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.randomUnreadStoryBtn) {
+            ((MainActivity)requireActivity()).getRandomUnreadStory();
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.xayris.donalduck.data;
 
 import com.xayris.donalduck.data.entities.Comic;
+import com.xayris.donalduck.utils.Utility;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -41,7 +42,8 @@ public class ComicsExplorer {
                 Comic comic = new Comic();
                 comic.setIssue(issueNumber);
 
-                Document doc = Jsoup.connect(ISSUE_BASE_URL + issueNumber).cookie("coa-session", "4bnv9kak52nonupgi1sfn482v4")
+                Document doc = Jsoup.connect(ISSUE_BASE_URL + issueNumber)
+                        .cookie("coa-session", Utility.InducksCookie)
                         .get();
 
                 // checks if comic exists

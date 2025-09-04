@@ -38,7 +38,10 @@
     <!-- Content descriptions-->
     <string name="cdesc_navbarlogo">Navigation bar logo</string>
     <string name="cdesc_addComicBtn">Button to add new comic</string>
+    <string name="cdesc_randomUnreadStoryBtn">Button to get random unread story</string>
     <string name="cdesc_animatedImg">Animated gif for music easter egg</string>
     <string name="cdesc_coverImg">Comic cover image</string>
+    <string name="set_story_read">Set Read</string>
+    <string name="unset_story_read">Unset read</string>
 
 </resources>

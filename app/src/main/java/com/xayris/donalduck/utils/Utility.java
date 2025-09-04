@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Utility {
 
+    public static String InducksCookie;
     static Toast _globalToast;
 
     public static void showToast(Context context, int messageResource, int duration)
