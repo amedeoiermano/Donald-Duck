@@ -1,5 +1,7 @@
 package com.xayris.donalduck.ui.archive;
 
+import static io.realm.Realm.getApplicationContext;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
@@ -14,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.xayris.donalduck.Category;
 import com.xayris.donalduck.R;
 import com.xayris.donalduck.adapters.ComicsArchiveAdapter;
@@ -102,6 +106,9 @@ public class ArchiveTabFragment extends Fragment implements OrderedRealmCollecti
     private void showArchive() {
         boolean noComics = ComicsRepository.getInstance().getComicsByCategory(_category).size() == 0;
         _binding.noComicsContainer.setVisibility(noComics ? View.VISIBLE : View.GONE);
+        Glide.with(getApplicationContext())
+                .load(R.drawable.donald_no_comics)
+                .into(new DrawableImageViewTarget(_binding.noComicsImg));
         @SuppressLint("DiscouragedApi") int resId = requireContext().getResources().getIdentifier("no_comics_" + _category.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
         if(resId != 0)
             _binding.noComicsTxt.setText(requireContext().getString(resId));

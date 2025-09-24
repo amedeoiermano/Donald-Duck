@@ -1,5 +1,7 @@
 package com.xayris.donalduck.ui.detail;
 
+import static io.realm.Realm.getApplicationContext;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -12,10 +14,14 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -143,8 +149,8 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         _binding = null;
+        super.onDestroyView();
     }
 
     private void loadComic(String issue) {
@@ -164,42 +170,81 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     }
 
     private void promptNewComic() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),R.style.Theme_DonaldDuck_Dialog);
-        builder.setTitle(getString(R.string.prompt_issue_number));
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.Theme_DonaldDuck_Dialog);
+
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(20,20,20,20);
+        layout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        ImageView imageView = new ImageView(requireContext());
+        LinearLayout.LayoutParams imgParams = new LinearLayout.LayoutParams(
+                300,
+                300
+        );
+        imgParams.gravity = Gravity.CENTER_HORIZONTAL;
+        imageView.setLayoutParams(imgParams);
+        Glide.with(getApplicationContext()).load(R.drawable.donaldquestion).into(new DrawableImageViewTarget(imageView));
+
+        TextView titleView = new TextView(requireContext());
+        titleView.setText(getString(R.string.prompt_issue_number));
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        titleView.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.harvats));
+        titleView.setTextColor(Color.WHITE);
+        titleView.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        titleParams.setMargins(0, 30, 0, 30);
+        titleView.setLayoutParams(titleParams);
+
         final AppCompatEditText input = new AppCompatEditText(requireContext());
         input.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
         input.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        input.setGravity(Gravity.CENTER);
         input.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
         input.setTextColor(Color.WHITE);
         input.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.harvats));
-        builder.setView(input);
+        LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        inputParams.setMargins(0, 10, 0, 10);
+        input.setLayoutParams(inputParams);
+
+        layout.addView(imageView);
+        layout.addView(titleView);
+        layout.addView(input);
+
+        builder.setView(layout);
 
         builder.setPositiveButton(getString(R.string.confirm), (d, which) -> {
             Editable issue = input.getText();
-            if(issue == null || issue.length() == 0)
-            {
+            if (issue == null || issue.length() == 0) {
                 Utility.showToast(getContext(), R.string.comic_issue_number_not_provided, Toast.LENGTH_SHORT);
                 promptNewComic();
                 return;
-
             }
             showAnimation();
-            // gets existing comic
-            _comic= ComicsRepository.getInstance().getComic(issue.toString());
-            if(_comic != null)
+            _comic = ComicsRepository.getInstance().getComic(issue.toString());
+            if (_comic != null)
                 showComic();
             else
-                ComicsExplorer.downloadComic(issue.toString(),ComicDetailFragment.this);
+                ComicsExplorer.downloadComic(issue.toString(), ComicDetailFragment.this);
             input.clearFocus();
             Utility.hideKeyboard(requireActivity());
         });
+
         builder.setCancelable(false);
-        builder.setNegativeButton(getString(R.string.cancel), (d, which) -> { d.cancel();
+        builder.setNegativeButton(getString(R.string.cancel), (d, which) -> {
+            d.cancel();
             input.clearFocus();
             Utility.hideKeyboard(requireActivity());
             requireActivity().onBackPressed();
         });
+
         builder.show();
         Utility.showKeyboard(input, requireActivity());
     }
@@ -290,11 +335,48 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
     }
 
     private void showDeleteComicDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),R.style.Theme_DonaldDuck_Dialog);
-        builder.setTitle(R.string.delete_comic_confirm);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.Theme_DonaldDuck_Dialog);
+
+
+        LinearLayout layout = new LinearLayout(requireContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(20, 20, 20, 20);
+        layout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        ImageView imageView = new ImageView(requireContext());
+        LinearLayout.LayoutParams imgParams = new LinearLayout.LayoutParams(
+                300,
+                300
+        );
+        imgParams.gravity = Gravity.CENTER_HORIZONTAL;
+        imageView.setLayoutParams(imgParams);
+        Glide.with(requireContext())
+                .load(R.drawable.donaldcrying)
+                .into(new DrawableImageViewTarget(imageView));
+
+        TextView titleView = new TextView(requireContext());
+        titleView.setText(getString(R.string.delete_comic_confirm));
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        titleView.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.harvats));
+        titleView.setTextColor(Color.WHITE);
+        titleView.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        titleParams.setMargins(0, 30, 0, 30);
+        titleView.setLayoutParams(titleParams);
+
+
+        layout.addView(imageView);
+        layout.addView(titleView);
+
+        builder.setView(layout);
+
         builder.setCancelable(false);
         builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> deleteComic());
         builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.cancel());
+
         builder.show();
     }
 

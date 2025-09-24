@@ -2,7 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/backupData"
-        android:title="@string/backup_data" />    <item
+        android:title="@string/backup_data" />
+    <item
         android:id="@+id/restoreData"
         android:title="@string/restore_data" />
+    <item
+        android:id="@+id/showStats"
+        android:title="@string/stats" />
 </menu>

@@ -48,23 +48,28 @@ public class Comic extends RealmObject {
     }
 
     public String getIssueDateFormatted() {
-        if(issueDate == null)
+        if (issueDate == null)
             return null;
+
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(issueDate);
-        // increments month
-        calendar.add(Calendar.MONTH, 2);
+
         int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
-        if(month > 0)
-            month -= 1;
-        String monthLocalized = new DateFormatSymbols().getMonths()[month];
+
+        String monthLocalized = new java.text.DateFormatSymbols().getMonths()[month];
+
         return monthLocalized + " " + year;
     }
 
     public void setIssueDate(Date date)
     {
         issueDate = date;
+    }
+
+    public Date getIssueDate()
+    {
+        return issueDate;
     }
 
     public void addStory(String storyCode, String storyTitle) {

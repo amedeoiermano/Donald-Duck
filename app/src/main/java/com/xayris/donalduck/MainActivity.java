@@ -5,9 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,6 +17,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_archive, R.id.navigation_detail)
+                R.id.navigation_home, R.id.navigation_archive, R.id.navigation_detail, R.id.navigation_stats)
                 .build();
         _navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         if (_navHostFragment != null) {
@@ -83,35 +82,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         _bgMusicPlayer = MediaPlayer.create(this, R.raw.bg_music);
         _bgMusicPlayer.setOnCompletionListener(this);
 
-        SharedPreferences prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        String sessionCookie = prefs.getString("coa-session", null);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+            cookieManager.setAcceptThirdPartyCookies(_binding.webView, true);
 
-        if (sessionCookie != null) {
-            Utility.InducksCookie = sessionCookie;
-            // se il cookie c'è, non mostro la webview
-            _binding.webView.setVisibility(View.GONE);
-        } else {
-            // se il cookie non c'è, preparo la webview per il login
-            _binding.webView.getSettings().setJavaScriptEnabled(true);
-            _binding.webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    checkCoaSessionCookie(url);
-
-                    if (url.contains("maccount.php")) {
-                        String js = "javascript:(function() { " +
-                                "document.getElementById('login').value='aiermano';" +
-                                "document.getElementById('pass').value='F4ttiavantiinducks!';" +
-                                "document.getElementById('loginbutton').click();" +
-                                "})()";
-                        view.evaluateJavascript(js, null);
-                    }
+        _binding.webView.getSettings().setJavaScriptEnabled(true);
+        _binding.webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                refreshSessionCookie(url);
+                if (url.contains("maccount.php")) {
+                    String js = "javascript:(function() { " +
+                            "document.getElementById('login').value='aiermano';" +
+                            "document.getElementById('pass').value='F4ttiavantiinducks!';" +
+                            "document.getElementById('loginbutton').click();" +
+                            "})()";
+                    view.evaluateJavascript(js, null);
                 }
-            });
-
-            _binding.webView.loadUrl("https://inducks.org/maccount.php");
-        }
+            }
+        });
+        _binding.webView.loadUrl("https://inducks.org/maccount.php");
     }
 
     @Override
@@ -206,13 +197,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.backupData) {
-            ComicsRepository.getInstance().backupData(this);
+            if(ComicsRepository.getInstance().backupData())
+                Utility.showToast(this, R.string.data_backup_success, Toast.LENGTH_SHORT);
+            else
+                Utility.showToast(this, R.string.data_backup_failure, Toast.LENGTH_SHORT);
         }
         if(item.getItemId() == R.id.restoreData) {
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
             chooseFile.setType("*/*");
             chooseFile = Intent.createChooser(chooseFile, "Choose a file");
             _restoreDataLauncher.launch(chooseFile);
+        }
+        if(item.getItemId() == R.id.showStats) {
+            hideNavBar();
+            _navController.navigate(R.id.action_stats);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -261,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RandomStoryFragment.newInstance().show(getSupportFragmentManager(), RandomStoryFragment.class.getName());
     }
 
-    private void checkCoaSessionCookie(String url) {
+    private void refreshSessionCookie(String url) {
         CookieManager cookieManager = CookieManager.getInstance();
         String cookies = cookieManager.getCookie(url);
         if (cookies != null && cookies.contains("coa-session")) {
@@ -269,15 +267,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (String cookie : cookieArray) {
                 cookie = cookie.trim();
                 if (cookie.startsWith("coa-session=")) {
-                    String sessionValue = cookie.substring("coa-session=".length());
-                    Utility.InducksCookie = sessionValue;
-                    SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                    prefs.edit().putString("coa-session", sessionValue).apply();
-
-                    runOnUiThread(() -> _binding.webView.setVisibility(View.GONE));
-                    break;
+                    Utility.InducksCookie = cookie.substring("coa-session=".length());
+                    return;
                 }
             }
         }
     }
+
 }

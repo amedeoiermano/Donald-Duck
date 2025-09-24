@@ -3,6 +3,8 @@ package com.xayris.donalduck.data;
 import com.xayris.donalduck.data.entities.Comic;
 import com.xayris.donalduck.utils.Utility;
 
+import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,9 +12,12 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import java.net.HttpURLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -24,7 +29,6 @@ public class ComicsExplorer {
 
     static final String BASE_URL = "https://inducks.org/";
     static final String ISSUE_BASE_URL = BASE_URL + "issue.php?c=it%2FPM++";
-    static final String ISSUE_NOT_FOUND_ERROR = "Issue not found";
 
     /**
      * Layout types that will be avoided since they don't contain stories
@@ -42,12 +46,14 @@ public class ComicsExplorer {
                 Comic comic = new Comic();
                 comic.setIssue(issueNumber);
 
-                Document doc = Jsoup.connect(ISSUE_BASE_URL + issueNumber)
+                Connection.Response response = Jsoup.connect(ISSUE_BASE_URL + issueNumber)
                         .cookie("coa-session", Utility.InducksCookie)
-                        .get();
+                        .method(Connection.Method.GET)
+                        .execute();
 
                 // checks if comic exists
-                if(checkComic(doc)) {
+                    Document doc = response.parse();
+
                     // gets comic cover image
                     getComicCoverUrl(comic, doc);
 
@@ -58,9 +64,16 @@ public class ComicsExplorer {
 
                     result.setComic(comic);
                     result.setStatus(DownloadComicResult.DownloadComicStatus.Success);
-                }
-                else
+
+            }
+            catch (HttpStatusException ex)
+            {
+                int statusCode = ex.getStatusCode();
+                if(statusCode == HttpURLConnection.HTTP_NOT_FOUND)
                     result.setStatus(DownloadComicResult.DownloadComicStatus.IssueNotFound);
+                else
+                    result.setStatus(DownloadComicResult.DownloadComicStatus.Error);
+                result.setError(ex);
             }
             catch (Exception ex)
             {
@@ -81,22 +94,18 @@ public class ComicsExplorer {
         // checks date format
         String[] splitted = datetime.split("-");
         String format = splitted.length == 3 ? "yyyy-MM-dd" : "yyyy-MM";
+
         SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.ENGLISH);
         Date date = formatter.parse(datetime);
-        comic.setIssueDate(date);
-    }
-
-    /**
-     *  Checks if the comic exists
-     *  @param doc the HTML document of the I.N.D.U.C.K.S. webpage
-     */
-    private static boolean checkComic(Document doc) {
-        Element subHeader = doc.select(".subHeader").first();
-        if (subHeader != null)
+        if(splitted.length == 3)
         {
-            return !subHeader.text().equals(ISSUE_NOT_FOUND_ERROR);
+            Calendar calendar = GregorianCalendar.getInstance();
+            calendar.setTime(date);
+            // increments month
+            calendar.add(Calendar.MONTH, 1);
+            date = calendar.getTime();
         }
-        return true;
+        comic.setIssueDate(date);
     }
 
     /**
@@ -163,7 +172,7 @@ public class ComicsExplorer {
 
     public static class DownloadComicResult
     {
-        private com.xayris.donalduck.data.entities.Comic comic;
+        private Comic comic;
         private DownloadComicStatus status;
         private Exception error;
 

@@ -23,7 +23,7 @@
     <string name="completed_comics">Completed (%1$s)</string>
     <string name="all_comics">All (%1$s)</string>
     <string name="delete_comic">Delete</string>
-    <string name="delete_comic_confirm">Do you really want to delete this comic?</string>
+    <string name="delete_comic_confirm">Delete this comic?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="comic_deleted">Comic deleted.</string>
@@ -43,5 +43,11 @@
     <string name="cdesc_coverImg">Comic cover image</string>
     <string name="set_story_read">Set Read</string>
     <string name="unset_story_read">Unset read</string>
+    <string name="total_comics_owned">Total comics owned</string>
+    <string name="read_stories_count">Read stories</string>
+    <string name="unread_stories_count">Unread stories</string>
+    <string name="overall_stories_progress">Stories completion</string>
+    <string name="overall_comics_progress">Comics completion</string>
+    <string name="stats">Stats</string>
 
 </resources>

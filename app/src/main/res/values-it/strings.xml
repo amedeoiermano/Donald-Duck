@@ -24,7 +24,7 @@
     <string name="completed_comics">Finiti (%1$s)</string>
     <string name="all_comics">Tutti (%1$s)</string>
     <string name="delete_comic">Elimina</string>
-    <string name="delete_comic_confirm">Vuoi davvero eliminare questo fumetto?</string>
+    <string name="delete_comic_confirm">Eliminare questo fumetto?</string>
     <string name="yes">Sì</string>
     <string name="no">No</string>
     <string name="comic_deleted">Fumetto eliminato.</string>
@@ -45,4 +45,10 @@
     <string name="cdesc_coverImg">Immagine di copertina del fumetto</string>
     <string name="set_story_read">Segna come letta</string>
     <string name="unset_story_read">Segna come non letta</string>
+    <string name="total_comics_owned">Totale fumetti posseduti</string>
+    <string name="read_stories_count">Storie lette</string>
+    <string name="unread_stories_count">Storie non lette</string>
+    <string name="overall_stories_progress">Completamento storie</string>
+    <string name="overall_comics_progress">Completamento fumetti</string>
+    <string name="stats">Statistiche</string>
 </resources>

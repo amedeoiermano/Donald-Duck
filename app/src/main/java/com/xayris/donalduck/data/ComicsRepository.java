@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -100,6 +99,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         comic.setStories(stories);
         realm.copyToRealmOrUpdate(comic);
         realm.commitTransaction();
+        backupData();
     }
 
 
@@ -217,6 +217,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         story.setIsRead(!story.getIsRead());
         realm.copyToRealmOrUpdate(story);
         realm.commitTransaction();
+        backupData();
     }
 
     public void deleteComic(Comic comic) {
@@ -226,6 +227,7 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         if(toDelete != null)
             toDelete.deleteFromRealm();
         realm.commitTransaction();
+        backupData();
     }
 
     public void updateComicCoverUrl(Comic comic, String coverUrl) {
@@ -234,9 +236,10 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         comic.setCoverUrl(coverUrl);
         realm.copyToRealmOrUpdate(comic);
         realm.commitTransaction();
+        backupData();
     }
 
-    public void backupData(Context context) {
+    public boolean backupData() {
         final Realm realm = Realm.getDefaultInstance();
         try {
             final File dst = new File(Utility.getCommonDocumentDirPath().getPath().concat("/donald_backup.realm"));
@@ -251,6 +254,9 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
                 boolean fileDeleteResult = dst.delete();
                 if(!fileDeleteResult)
                     throw new Exception();
+                boolean fileCreateResult = dst.createNewFile();
+                if(!fileCreateResult)
+                    throw new Exception();
             }
             FileOutputStream outStream = new FileOutputStream(dst);
             FileChannel inChannel = inStream.getChannel();
@@ -258,10 +264,11 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
             inChannel.transferTo(0, inChannel.size(), outChannel);
             inStream.close();
             outStream.close();
-            Utility.showToast(context, R.string.data_backup_success, Toast.LENGTH_SHORT);
+
+            return true;
 
         } catch (Exception e) {
-            Utility.showToast(context, R.string.data_backup_success, Toast.LENGTH_SHORT);
+            return false;
         }
     }
 
@@ -305,6 +312,44 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
 
     public void removeComicsChangeListener(OrderedRealmCollectionChangeListener<RealmResults<Comic>> listener) {
         _comics.removeChangeListener(listener);
+    }
+    public int getTotalComicsCount() {
+        return getAllComics().size();
+    }
+
+    public int getTotalReadStoriesCount() {
+        return getAllComics().stream()
+                .mapToInt(Comic::getReadStoriesCount)
+                .sum();
+    }
+
+    public int getTotalUnreadStoriesCount() {
+        return getAllComics().stream()
+                .mapToInt(c -> c.getStoriesCount() - c.getReadStoriesCount())
+                .sum();
+    }
+
+    public int getComicsCompletionPercentage() {
+        int total = getTotalComicsCount();
+        if (total == 0) return 0;
+
+        long completed = getAllComics().stream()
+                .filter(c -> c.getReadStoriesCount() == c.getStoriesCount() && c.getStoriesCount() > 0)
+                .count();
+
+        return (int) Math.round((completed * 100.0) / total);
+    }
+
+    public int getStoriesCompletionPercentage() {
+        int totalStories = getAllComics().stream()
+                .mapToInt(Comic::getStoriesCount)
+                .sum();
+
+        if (totalStories == 0) return 0;
+
+        int readStories = getTotalReadStoriesCount();
+
+        return (int) Math.round((readStories * 100.0) / totalStories);
     }
 
     public static class ComicsArchiveResult {

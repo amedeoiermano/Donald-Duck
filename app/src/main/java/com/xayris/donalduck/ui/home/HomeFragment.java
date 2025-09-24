@@ -1,5 +1,7 @@
 package com.xayris.donalduck.ui.home;
 
+import static io.realm.Realm.getApplicationContext;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.xayris.donalduck.Category;
 import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.R;
@@ -40,7 +44,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comi
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ComicsRepository.getInstance().addComicsChangeListener(this);
-        _adapter = new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getComicsInProgress(), HomeFragment.this);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -66,6 +69,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comi
     private void showHome() {
         new Handler(Looper.myLooper()).post(() -> {
             boolean noComics = ComicsRepository.getInstance().getComicsInProgress().size() == 0;
+            if(noComics) {
+                Glide.with(getApplicationContext())
+                        .load(R.drawable.donald_no_comics)
+                        .into(new DrawableImageViewTarget(_binding.noComicsImg));
+            }
             _binding.noComicsContainer.setVisibility(noComics ? View.VISIBLE : View.GONE);
             @SuppressLint("DiscouragedApi") int resId = requireContext().getResources().getIdentifier("no_comics_" + Category.InProgress.toString().toLowerCase() + "_description", "string", requireContext().getPackageName());
             if(resId != 0)
@@ -91,6 +99,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Comi
     public void onResume() {
         super.onResume();
         ((MainActivity)requireActivity()).showNavBar();
+        if(_adapter == null)
+            _adapter = new ComicsHomeAdapter(requireContext(), ComicsRepository.getInstance().getComicsInProgress(), HomeFragment.this);
+        else
+            _adapter.updateData(ComicsRepository.getInstance().getComicsInProgress());
     }
 
     @Override

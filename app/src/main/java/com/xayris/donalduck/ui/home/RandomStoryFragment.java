@@ -110,23 +110,18 @@ public class RandomStoryFragment extends DialogFragment implements View.OnClickL
 
     @Override
     public void onClick(View view) {
-        if(view.getId() == R.id.setStoryReadButton)
-        {
+        if (view.getId() == R.id.setStoryReadButton) {
             boolean isRead = !_story.getIsRead();
 
             ComicsRepository.getInstance().setStoryRead(_story);
 
-            _story.setIsRead(isRead);
-            if(isRead)
-            {
+            if (isRead) {
                 _binding.setStoryReadButton.setIconResource(R.drawable.ic_close);
                 _binding.setStoryReadButton.setText(R.string.unset_story_read);
-            }
-            else {
+            } else {
                 _binding.setStoryReadButton.setIconResource(R.drawable.ic_check);
                 _binding.setStoryReadButton.setText(R.string.set_story_read);
             }
-
         }
     }
 }
