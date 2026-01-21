@@ -209,7 +209,33 @@
                 android:layout_width="0dp"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:text="@string/missing_comics"
+            android:textColor="@color/yellow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="1"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textSize="16sp"
+            android:fontFamily="@font/futurino"
+            android:textAllCaps="true"
+            android:layout_marginTop="12dp" />
 
+        <TextView
+            android:id="@+id/missingComicsTxt"
+            android:textColor="@android:color/white"
+            tools:text="67"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="1"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:textSize="20sp"
+            android:fontFamily="@font/harvats"
+            android:textAllCaps="true" />
 
     </LinearLayout>
 </ScrollView>

@@ -51,4 +51,5 @@
     <string name="overall_stories_progress">Completamento storie</string>
     <string name="overall_comics_progress">Completamento fumetti</string>
     <string name="stats">Statistiche</string>
+    <string name="missing_comics">Fumetti mancanti</string>
 </resources>

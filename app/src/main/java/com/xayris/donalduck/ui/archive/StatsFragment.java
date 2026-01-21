@@ -13,6 +13,8 @@ import com.xayris.donalduck.MainActivity;
 import com.xayris.donalduck.data.ComicsRepository;
 import com.xayris.donalduck.databinding.FragmentStatsBinding;
 
+import java.util.List;
+
 public class StatsFragment extends Fragment {
 
     private FragmentStatsBinding _binding;
@@ -41,6 +43,7 @@ public class StatsFragment extends Fragment {
         int unreadStories = repo.getTotalUnreadStoriesCount();
         int comicsCompletion = repo.getComicsCompletionPercentage();
         int storiesCompletion = repo.getStoriesCompletionPercentage();
+        List<Integer> missingComics = repo.getMissingComicsInRange(379, 500);
 
         _binding.totalComicsOwnedTxt.setText(String.valueOf(totalComics));
         _binding.readStoriesCountTxt.setText(String.valueOf(readStories));
@@ -51,6 +54,16 @@ public class StatsFragment extends Fragment {
 
         _binding.comicsCompletionProgressTxt.setText(comicsCompletion + "%");
         _binding.storiesCompletionProgressTxt.setText(storiesCompletion + "%");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < missingComics.size(); i++) {
+            sb.append(missingComics.get(i));
+            if (i < missingComics.size() - 1) {
+                sb.append("\n");
+            }
+        }
+
+        _binding.missingComicsTxt.setText(sb.toString());
     }
 
     @Override

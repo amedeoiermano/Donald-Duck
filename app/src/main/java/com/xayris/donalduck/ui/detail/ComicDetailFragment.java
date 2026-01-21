@@ -361,7 +361,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         titleView.setTextColor(Color.WHITE);
         titleView.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
         titleParams.setMargins(0, 30, 0, 30);

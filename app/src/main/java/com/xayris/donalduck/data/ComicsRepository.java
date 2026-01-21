@@ -352,6 +352,32 @@ public class ComicsRepository implements OrderedRealmCollectionChangeListener<Re
         return (int) Math.round((readStories * 100.0) / totalStories);
     }
 
+    public List<Integer> getMissingComicsInRange(int start, int end) {
+        List<Comic> allComics = getAllComics();
+
+        List<Integer> ownedIssues = allComics.stream()
+                .map(Comic::getIssue)
+                .filter(Objects::nonNull)
+                .map(issueStr -> {
+                    try {
+                        return Integer.parseInt(issueStr);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<Integer> missing = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            if (!ownedIssues.contains(i)) {
+                missing.add(i);
+            }
+        }
+
+        return missing;
+    }
+
     public static class ComicsArchiveResult {
         private final List<Comic> _unstartedComics;
         private final List<Comic> _completedComics;

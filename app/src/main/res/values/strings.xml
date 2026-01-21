@@ -49,5 +49,6 @@
     <string name="overall_stories_progress">Stories completion</string>
     <string name="overall_comics_progress">Comics completion</string>
     <string name="stats">Stats</string>
+    <string name="missing_comics">Missing comics</string>
 
 </resources>
