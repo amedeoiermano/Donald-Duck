@@ -48,7 +48,6 @@ public class ComicsExplorer {
 
                 Connection.Response response = Jsoup.connect(ISSUE_BASE_URL + issueNumber)
                         .cookie("techaro.lol-anubis-auth", Utility.AnubisAuthCookie)
-                        .cookie("techaro.lol-anubis-cookie-verification", Utility.AnubisCookieVerification)
                         .method(Connection.Method.GET)
                         .execute();
 

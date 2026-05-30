@@ -32,6 +32,14 @@ public class Utility {
         _globalToast.show();
     }
 
+    public static void showToast(Context context, String message, int duration)
+    {
+        if(_globalToast != null)
+            _globalToast.cancel();
+        _globalToast = Toast.makeText(context, message, duration);
+        _globalToast.show();
+    }
+
     public static void hideToast()
     {
         if(_globalToast != null)

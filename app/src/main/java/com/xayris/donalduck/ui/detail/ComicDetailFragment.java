@@ -261,6 +261,7 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
             } else {
                 int msg = result.getStatus() == ComicsExplorer.DownloadComicResult.DownloadComicStatus.IssueNotFound ? R.string.issue_not_found : R.string.error_downloading_comic;
                 Utility.showToast(getContext(), msg, Toast.LENGTH_SHORT);
+                Utility.showToast(getContext(), result.getError().getMessage(), Toast.LENGTH_LONG);
                 promptNewComic();
             }
         });

@@ -260,8 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 cookie = cookie.trim();
                 if (cookie.startsWith("techaro.lol-anubis-auth=")) {
                     Utility.AnubisAuthCookie = cookie.substring("techaro.lol-anubis-auth=".length());
-                } else if (cookie.startsWith("techaro.lol-anubis-cookie-verification="))
-                    Utility.AnubisCookieVerification = cookie.substring("techaro.lol-anubis-cookie-verification=".length());
+                }
             }
         }
     }
