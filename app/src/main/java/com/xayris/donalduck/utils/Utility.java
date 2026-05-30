@@ -20,7 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Utility {
 
-    public static String InducksCookie;
+    public static String AnubisAuthCookie;
+    public static String AnubisCookieVerification;
     static Toast _globalToast;
 
     public static void showToast(Context context, int messageResource, int duration)
@@ -28,13 +29,6 @@ public class Utility {
         if(_globalToast != null)
             _globalToast.cancel();
         _globalToast = Toast.makeText(context, messageResource, duration);
-        _globalToast.show();
-    }
-    public static void showToast(Context context, String message, int duration)
-    {
-        if(_globalToast != null)
-            _globalToast.cancel();
-        _globalToast = Toast.makeText(context, message, duration);
         _globalToast.show();
     }
 
@@ -54,10 +48,12 @@ public class Utility {
 
     public static void showKeyboard(View view, Activity context) {
         view.requestFocus();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInputFromWindow(view.getWindowToken(), InputMethodManager.SHOW_IMPLICIT, 0);
-        },200);
+        view.postDelayed(() -> {
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 300);
     }
     public static void hideKeyboard(Activity context) {
         new Handler(Looper.getMainLooper()).post(() -> {

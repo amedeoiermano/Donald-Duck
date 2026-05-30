@@ -271,18 +271,9 @@ public class ComicDetailFragment extends Fragment implements ComicsExplorer.OnCo
         hideAnimation();
         _binding.issueTxt.setText(getString(R.string.issue_number, _comic.getIssue()));
         _binding.issueDateTxt.setText(_comic.getIssueDateFormatted());
-        GlideUrl glideUrl = new GlideUrl(
-                _comic.getCoverUrl(),
-                new LazyHeaders.Builder()
-                        .addHeader(
-                                "Cookie",
-                                "coa-session=" + Utility.InducksCookie
-                        )
-                        .build()
-        );
 
         Glide.with(requireContext().getApplicationContext())
-                .load(glideUrl)
+                .load(_comic.getCoverUrl())
                 .placeholder(R.drawable.cover_placeholder)
                 .override(_coverImageSize.getWidth(), _coverImageSize.getHeight())
                 .transition(DrawableTransitionOptions.withCrossFade())

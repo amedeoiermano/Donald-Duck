@@ -72,18 +72,9 @@ public class RandomStoryFragment extends DialogFragment implements View.OnClickL
         _binding.issueTxt.setText(getString(R.string.issue_number, _comic.getIssue()));
         _binding.issueDateTxt.setText(_comic.getIssueDateFormatted());
         _binding.storyTitleTxt.setText(_story.getTitle());
-        GlideUrl glideUrl = new GlideUrl(
-                randomUnreadStory.getKey().getCoverUrl(),
-                new LazyHeaders.Builder()
-                        .addHeader(
-                                "Cookie",
-                                "coa-session=" + Utility.InducksCookie
-                        )
-                        .build()
-        );
 
         Glide.with(requireContext().getApplicationContext())
-                .load(glideUrl)
+                .load(_comic.getCoverUrl())
                 .placeholder(R.drawable.cover_placeholder)
                 .override(_coverImageSize.getWidth(), _coverImageSize.getHeight())
                 .transition(DrawableTransitionOptions.withCrossFade())

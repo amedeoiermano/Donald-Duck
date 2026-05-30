@@ -92,17 +92,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 refreshSessionCookie(url);
-                if (url.contains("maccount.php")) {
-                    String js = "javascript:(function() { " +
-                            "document.getElementById('login').value='aiermano';" +
-                            "document.getElementById('pass').value='F4ttiavantiinducks!';" +
-                            "document.getElementById('loginbutton').click();" +
-                            "})()";
-                    view.evaluateJavascript(js, null);
-                }
             }
         });
-        _binding.webView.loadUrl("https://inducks.org/maccount.php");
+        _binding.webView.loadUrl("https://inducks.org/");
     }
 
     @Override
@@ -262,14 +254,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void refreshSessionCookie(String url) {
         CookieManager cookieManager = CookieManager.getInstance();
         String cookies = cookieManager.getCookie(url);
-        if (cookies != null && cookies.contains("coa-session")) {
+        if (cookies != null && cookies.contains("techaro.lol")) {
             String[] cookieArray = cookies.split(";");
             for (String cookie : cookieArray) {
                 cookie = cookie.trim();
-                if (cookie.startsWith("coa-session=")) {
-                    Utility.InducksCookie = cookie.substring("coa-session=".length());
-                    return;
-                }
+                if (cookie.startsWith("techaro.lol-anubis-auth=")) {
+                    Utility.AnubisAuthCookie = cookie.substring("techaro.lol-anubis-auth=".length());
+                } else if (cookie.startsWith("techaro.lol-anubis-cookie-verification="))
+                    Utility.AnubisCookieVerification = cookie.substring("techaro.lol-anubis-cookie-verification=".length());
             }
         }
     }

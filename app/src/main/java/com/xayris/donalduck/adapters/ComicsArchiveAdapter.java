@@ -80,18 +80,9 @@ public class ComicsArchiveAdapter extends RecyclerView.Adapter<ComicsArchiveAdap
 
         public void update(Comic comic, OnItemClickListener clickListener) {
             _binding.issueTxt.setText(itemView.getContext().getString(R.string.issue_number,comic.getIssue().toUpperCase()));
-            GlideUrl glideUrl = new GlideUrl(
-                    comic.getCoverUrl(),
-                    new LazyHeaders.Builder()
-                            .addHeader(
-                                    "Cookie",
-                                    "coa-session=" + Utility.InducksCookie
-                            )
-                            .build()
-            );
 
             Glide.with(itemView.getContext().getApplicationContext())
-                    .load(glideUrl)
+                    .load(comic.getCoverUrl())
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .override(_coverSize.getWidth(), _coverSize.getHeight())
                     .placeholder(R.drawable.cover_placeholder)

@@ -92,18 +92,9 @@ public class ComicsHomeAdapter extends RecyclerView.Adapter<ComicsHomeAdapter.Co
             _listener = actionListener;
             _comic = comic;
             _position = position;
-            GlideUrl glideUrl = new GlideUrl(
-                    comic.getCoverUrl(),
-                    new LazyHeaders.Builder()
-                            .addHeader(
-                                    "Cookie",
-                                    "coa-session=" + Utility.InducksCookie
-                            )
-                            .build()
-            );
 
             Glide.with(itemView.getContext().getApplicationContext())
-                    .load(glideUrl)
+                    .load(comic.getCoverUrl())
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .override(_coverSize.getWidth(), _coverSize.getHeight())
                     .placeholder(R.drawable.cover_placeholder)
